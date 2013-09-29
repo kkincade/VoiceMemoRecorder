@@ -31,19 +31,26 @@ public final class R {
         public static final int microphone=0x7f020001;
     }
     public static final class id {
-        public static final int action_settings=0x7f090009;
+        public static final int LinearLayout01=0x7f09000a;
+        public static final int action_settings=0x7f09000e;
         public static final int chronometer=0x7f090005;
         public static final int microphone_image=0x7f090004;
         public static final int name_edit_text=0x7f090001;
         public static final int name_label=0x7f090000;
+        public static final int playback_button=0x7f090009;
         public static final int record_button=0x7f090006;
         public static final int save_button=0x7f090008;
         public static final int stop_button=0x7f090007;
         public static final int subject_edit_text=0x7f090003;
         public static final int subject_label=0x7f090002;
+        public static final int todo_edit_button=0x7f09000d;
+        public static final int todo_edit_description=0x7f09000c;
+        public static final int todo_edit_summary=0x7f09000b;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
+        public static final int edit_audio_recording=0x7f030001;
+        public static final int recordings_list=0x7f030002;
     }
     public static final class menu {
         public static final int main=0x7f080000;
@@ -51,13 +58,17 @@ public final class R {
     public static final class string {
         public static final int action_settings=0x7f050001;
         public static final int app_name=0x7f050000;
-        public static final int name_hint=0x7f050007;
-        public static final int name_label=0x7f050005;
+        public static final int confirm=0x7f05000c;
+        public static final int name_hint=0x7f050009;
+        public static final int name_label=0x7f050007;
+        public static final int no_recordings=0x7f05000b;
+        public static final int pause=0x7f050003;
+        public static final int play=0x7f050006;
         public static final int record=0x7f050002;
-        public static final int save=0x7f050004;
-        public static final int stop=0x7f050003;
-        public static final int subject_hint=0x7f050008;
-        public static final int subject_label=0x7f050006;
+        public static final int save=0x7f050005;
+        public static final int stop=0x7f050004;
+        public static final int subject_hint=0x7f05000a;
+        public static final int subject_label=0x7f050008;
     }
     public static final class style {
         /** 

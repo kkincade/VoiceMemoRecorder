@@ -34,8 +34,6 @@
             android:textColor="@color/white"
             android:textColorHint="@color/gray"
             android:textSize="16sp" />
-
-        <requestFocus />
     </LinearLayout>
 
     <LinearLayout
@@ -90,13 +88,14 @@
         android:gravity="bottom"
         android:orientation="horizontal" >
 
-        <Button
+        <ToggleButton
             android:id="@+id/record_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="record"
-            android:text="@string/record"
+            android:textOff="@string/record"
+            android:textOn="@string/pause"
             android:textColor="@color/white" />
 
         <Button
@@ -115,6 +114,15 @@
             android:layout_weight="1"
             android:onClick="save"
             android:text="@string/save"
+            android:textColor="@color/white" />
+        
+        <Button
+            android:id="@+id/playback_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="playback"
+            android:text="@string/play"
             android:textColor="@color/white" />
 
     </LinearLayout>

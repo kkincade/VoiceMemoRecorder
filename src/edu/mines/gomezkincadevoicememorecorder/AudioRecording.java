@@ -3,25 +3,25 @@ package edu.mines.gomezkincadevoicememorecorder;
 import java.io.File;
 
 public class AudioRecording {
-	private File audio_file;
+	private File audioFile;
 	private String name;
 	private String subject;
 	private String notes;
 	
-	public AudioRecording(File audio_file, String name, String subject, String notes) {
-		this.audio_file = audio_file;
+	public AudioRecording(File audioFile, String name, String subject, String notes) {
+		this.audioFile = audioFile;
 		this.name = name;
 		this.subject = subject;
 		this.setNotes(notes);
 	}
 
 	/** Getters and Setters **/
-	public File getAudio_file() {
-		return audio_file;
+	public File getAudioFile() {
+		return audioFile;
 	}
 
-	public void setAudio_file(File audio_file) {
-		this.audio_file = audio_file;
+	public void setAudioFile(File audioFile) {
+		this.audioFile = audioFile;
 	}
 
 	public String getName() {

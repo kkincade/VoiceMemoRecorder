@@ -4,12 +4,16 @@
     <string name="app_name">Voice Memo Recorder</string>
     <string name="action_settings">Settings</string>
     <string name="record">Record</string>
+    <string name="pause">Pause</string>
     <string name="stop">Stop</string>
     <string name="save">Save</string>
+    <string name="play">Play</string>
     <string name="name_label">Name:</string>
     <string name="subject_label">Subject:</string>
     <string name="name_hint">Recording name&#8230;</string>
     <string name="subject_hint">Type of recording&#8230;</string>
+    <string name="no_recordings">No Recordings</string>
+    <string name="confirm">Confirm</string>
     
     <color name="black">#000000</color>
 	<color name="white">#FFFFFF</color>
