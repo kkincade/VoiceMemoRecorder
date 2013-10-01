@@ -14,9 +14,13 @@
     <string name="subject_hint">Type of recording&#8230;</string>
     <string name="no_recordings">No Recordings</string>
     <string name="confirm">Confirm</string>
-    
+
     <color name="black">#000000</color>
-	<color name="white">#FFFFFF</color>
-	<color name="gray">#555555</color>
-	<color name="red">#FF0000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="gray">#555555</color>
+    <color name="red">#FF0000</color>
+
+    <string name="title_activity_recording_list_adapter">RecordingListAdapter</string>
+    <string name="hello_world">Hello world!</string>
+
 </resources>

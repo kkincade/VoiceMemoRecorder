@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical" >
 
     <ListView
-        android:id="@android:id/list"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:id="@+id/recording_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="8"
+        android:clickable="true" >
+
     </ListView>
 
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/listview_play"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/no_recordings" />
+        android:layout_weight="1"
+        android:gravity="bottom|center_horizontal"
+        android:onClick="playAudioFile"
+        android:text="@string/play" />
 
 </LinearLayout>

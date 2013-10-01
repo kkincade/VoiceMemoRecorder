@@ -1,18 +1,42 @@
 package edu.mines.gomezkincadevoicememorecorder;
 
 import java.io.File;
+import java.io.Serializable;
 
-public class AudioRecording {
+
+
+public class AudioRecording implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	private File audioFile;
 	private String name;
 	private String subject;
 	private String notes;
-	
-	public AudioRecording(File audioFile, String name, String subject, String notes) {
+	private String date;
+	private String length;
+	public AudioRecording(File audioFile, String name, String subject, String notes, String date, String length) {
 		this.audioFile = audioFile;
 		this.name = name;
 		this.subject = subject;
+		this.date = date;
+		this.length = length;
 		this.setNotes(notes);
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String getLength() {
+		return length;
+	}
+
+	public void setLength(String length) {
+		this.length = length;
 	}
 
 	/** Getters and Setters **/
@@ -46,5 +70,6 @@ public class AudioRecording {
 	public void setNotes(String notes) {
 		this.notes = notes;
 	}
+
 	
 }

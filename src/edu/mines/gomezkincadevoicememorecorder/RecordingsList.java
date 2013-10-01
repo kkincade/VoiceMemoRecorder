@@ -1,21 +1,53 @@
 package edu.mines.gomezkincadevoicememorecorder;
 
-import android.app.ListActivity;
-import android.app.LoaderManager;
+
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+
+import android.app.Activity;
 import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 
-public class RecordingsList extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-	
+public class RecordingsList extends Activity {
+	private String recordingTitle;
+	private String recordingDate;
+	private String recordingLength;
+	private String [] values;
+	private ListView list;
+	private RecordingListAdapter adapter;
+	private MediaPlayer player;
+	private String audioFilePath;
 	@Override
-    protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
         setContentView(R.layout.recordings_list);
+        list = (ListView) findViewById(R.id.recording_list);
+        values = new String[3];
+        ArrayList<AudioRecording> recordingObjects = (ArrayList<AudioRecording>) getIntent().getSerializableExtra(MainActivity.RECORDING_OBJECTS);
+        for(AudioRecording r : recordingObjects ) { 
+        	recordingTitle = r.getName();
+        	recordingDate = r.getDate();
+        	recordingLength = r.getLength();
+        	values[0] = recordingTitle;
+        	values[1] = recordingDate;
+        	values[2] = recordingLength;
+        	adapter = new RecordingListAdapter(this, values, recordingObjects);
+        	list.setAdapter(adapter);
+        }
+      
 	}
 	
 	
@@ -23,26 +55,39 @@ public class RecordingsList extends ListActivity implements LoaderManager.Loader
 		Intent myIntent = new Intent(this, MainActivity.class);
 		this.startActivity(myIntent);
 	}
-
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
-		// TODO Auto-generated method stub
+	
+	public void playAudioFile( View v ) {
 		
-	}
-
-
-	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
-		// TODO Auto-generated method stub
+		Toast.makeText(getApplicationContext(), audioFilePath, Toast.LENGTH_SHORT).show();
 		
+		
+		
+//		File audioFile = new File (audioFilePath);
+//
+//		if (audioFile.exists()) {
+//			player = new MediaPlayer();
+//			try {
+//				player.setDataSource(audioFilePath);
+//				player.prepare();
+//				player.start();
+//			} catch (IOException e) {
+//				Log.e("AUDIO PLAYER", "prepare() failed");
+//			}
+//		}
 	}
+
+	
+//	private class OnItemClick implements OnItemClickListener {
+//
+//		@Override
+//		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+//			AudioRecording recordingObject = (AudioRecording) adapter.getItem(0); 
+////			audioFilePath = recordingObject.getName();
+//			
+//			
+//		}
+//		
+//	}
+
 
 }
