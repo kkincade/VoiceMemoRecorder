@@ -31,63 +31,62 @@ public class RecordingsList extends Activity {
 	private String audioFilePath;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
-        setContentView(R.layout.recordings_list);
-        list = (ListView) findViewById(R.id.recording_list);
-        values = new String[3];
-        ArrayList<AudioRecording> recordingObjects = (ArrayList<AudioRecording>) getIntent().getSerializableExtra(MainActivity.RECORDING_OBJECTS);
-        for(AudioRecording r : recordingObjects ) { 
-        	recordingTitle = r.getName();
-        	recordingDate = r.getDate();
-        	recordingLength = r.getLength();
-        	values[0] = recordingTitle;
-        	values[1] = recordingDate;
-        	values[2] = recordingLength;
-        	adapter = new RecordingListAdapter(this, values, recordingObjects);
-        	list.setAdapter(adapter);
-        }
-      
+		super.onCreate(savedInstanceState);
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
+		setContentView(R.layout.recordings_list);
+		list = (ListView) findViewById(R.id.recording_list);
+		values = new String[3];
+		AudioRecording recordingObject = (AudioRecording) getIntent().getSerializableExtra(MainActivity.RECORDING_OBJECT);
+		int recordingCount = (Integer) getIntent().getSerializableExtra(MainActivity.RECORDING_COUNT);
+		recordingTitle = recordingObject.getName();
+		recordingDate = recordingObject.getDate();
+		recordingLength = recordingObject.getLength();
+		values[0] = recordingTitle;
+		values[1] = recordingDate;
+		values[2] = recordingLength;
+		adapter = new RecordingListAdapter(this, values, recordingCount);
+		list.setAdapter(adapter);
+
 	}
-	
-	
+
+
 	public void switchToRecordScreen() {
 		Intent myIntent = new Intent(this, MainActivity.class);
 		this.startActivity(myIntent);
 	}
-	
+
 	public void playAudioFile( View v ) {
-		
+
 		Toast.makeText(getApplicationContext(), audioFilePath, Toast.LENGTH_SHORT).show();
-		
-		
-		
-//		File audioFile = new File (audioFilePath);
-//
-//		if (audioFile.exists()) {
-//			player = new MediaPlayer();
-//			try {
-//				player.setDataSource(audioFilePath);
-//				player.prepare();
-//				player.start();
-//			} catch (IOException e) {
-//				Log.e("AUDIO PLAYER", "prepare() failed");
-//			}
-//		}
+
+
+
+		//		File audioFile = new File (audioFilePath);
+		//
+		//		if (audioFile.exists()) {
+		//			player = new MediaPlayer();
+		//			try {
+		//				player.setDataSource(audioFilePath);
+		//				player.prepare();
+		//				player.start();
+		//			} catch (IOException e) {
+		//				Log.e("AUDIO PLAYER", "prepare() failed");
+		//			}
+		//		}
 	}
 
-	
-//	private class OnItemClick implements OnItemClickListener {
-//
-//		@Override
-//		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-//			AudioRecording recordingObject = (AudioRecording) adapter.getItem(0); 
-////			audioFilePath = recordingObject.getName();
-//			
-//			
-//		}
-//		
-//	}
+
+	//	private class OnItemClick implements OnItemClickListener {
+	//
+	//		@Override
+	//		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+	//			AudioRecording recordingObject = (AudioRecording) adapter.getItem(0); 
+	////			audioFilePath = recordingObject.getName();
+	//			
+	//			
+	//		}
+	//		
+	//	}
 
 
 }

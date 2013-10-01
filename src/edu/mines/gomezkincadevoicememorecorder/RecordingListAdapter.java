@@ -14,13 +14,13 @@ public class RecordingListAdapter extends BaseAdapter {
 	//private final Context context;
 	private final String[] values;
 	private LayoutInflater inflater;
-	private ArrayList<AudioRecording> recordings;
+	private int count;
 
-	public RecordingListAdapter(Context context, String[] values, ArrayList<AudioRecording> recordings) {
+	public RecordingListAdapter(Context context, String[] values, int count) {
 		super();
 		//this.context = context;
 		this.values = values;
-		this.recordings = recordings;
+		this.count = count;
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 	@Override
@@ -34,7 +34,7 @@ public class RecordingListAdapter extends BaseAdapter {
 		recordingTitle.setText(values[0]);
 		recordingDate.setText(values[1]);
 		recordingLength.setText(values[2]);
-
+ 
 		return convertView;
 
 	}
@@ -42,7 +42,7 @@ public class RecordingListAdapter extends BaseAdapter {
 	@Override
 	public int getCount() {
 		// TODO Auto-generated method stub
-		return recordings.size();
+		return count;
 	}
 
 	@Override

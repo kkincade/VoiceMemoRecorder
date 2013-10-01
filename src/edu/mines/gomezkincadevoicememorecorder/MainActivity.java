@@ -38,8 +38,9 @@ public class MainActivity extends Activity {
 	private String audioFilePath1 = null;
 	private String audioFilePath2 = null;
 	private String audioFilePath3 = null;
-	public final static String RECORDING_OBJECTS = "recording";
-	
+	public final static String RECORDING_OBJECT = "recording";
+	public final static String RECORDING_COUNT = "count";
+	private int recordingCount;
 	private double length;
 	private ArrayList<AudioRecording> recordings = new ArrayList<AudioRecording> ();
 	// List of widgets
@@ -60,7 +61,7 @@ public class MainActivity extends Activity {
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
 		setContentView(R.layout.activity_main);
 		this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
+		recordingCount = 0;
 		audioFilePath1 = Environment.getExternalStorageDirectory().getAbsolutePath() + "/audio_recording_temp1.3gp";
 		audioFilePath2 = Environment.getExternalStorageDirectory().getAbsolutePath() + "/audio_recording_temp2.3gp";
 		audioFilePath3 = Environment.getExternalStorageDirectory().getAbsolutePath() + "/audio_recording_temp3.3gp";
@@ -175,12 +176,13 @@ public class MainActivity extends Activity {
 		Calendar c = Calendar.getInstance();
 		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yy", Locale.US);
 		String date = df.format(c.getTime());
-		
+		recordingCount += 1;
 		AudioRecording recording = new AudioRecording(newFile, nameEditText.getText().toString(), subjectEditText.getText().toString(), "", date, Double.toString(length));
 		// TODO: Pass the recording created above to the new activity
 		recordings.add(recording);
 		Intent myIntent = new Intent(this, RecordingsList.class); // Had to add new activity tag in Manifest.xml
-		myIntent.putExtra(RECORDING_OBJECTS, recordings);
+		myIntent.putExtra(RECORDING_OBJECT, recording);
+		myIntent.putExtra(RECORDING_COUNT, recordingCount);
 		this.startActivity(myIntent);
 	}
 
