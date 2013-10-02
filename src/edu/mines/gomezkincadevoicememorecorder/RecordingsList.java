@@ -29,22 +29,25 @@ public class RecordingsList extends Activity {
 	private RecordingListAdapter adapter;
 	private MediaPlayer player;
 	private String audioFilePath;
+	private ArrayList<AudioRecording> recordings = new ArrayList<AudioRecording> ();
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
 		setContentView(R.layout.recordings_list);
 		list = (ListView) findViewById(R.id.recording_list);
-		values = new String[3];
+//		values = new String[3];
 		AudioRecording recordingObject = (AudioRecording) getIntent().getSerializableExtra(MainActivity.RECORDING_OBJECT);
-		int recordingCount = (Integer) getIntent().getSerializableExtra(MainActivity.RECORDING_COUNT);
-		recordingTitle = recordingObject.getName();
-		recordingDate = recordingObject.getDate();
-		recordingLength = recordingObject.getLength();
-		values[0] = recordingTitle;
-		values[1] = recordingDate;
-		values[2] = recordingLength;
-		adapter = new RecordingListAdapter(this, values, recordingCount);
+//		int recordingCount = (Integer) getIntent().getSerializableExtra(MainActivity.RECORDING_COUNT);
+//		recordingTitle = recordingObject.getName();
+//		recordingDate = recordingObject.getDate();
+//		recordingLength = recordingObject.getLength();
+//		values[0] = recordingTitle;
+//		values[1] = recordingDate;
+//		values[2] = recordingLength;
+		recordings.add(recordingObject);
+		Log.d("size", "size of array " + recordings.size());
+		adapter = new RecordingListAdapter(this, recordings);
 		list.setAdapter(adapter);
 
 	}
@@ -56,8 +59,8 @@ public class RecordingsList extends Activity {
 	}
 
 	public void playAudioFile( View v ) {
-
-		Toast.makeText(getApplicationContext(), audioFilePath, Toast.LENGTH_SHORT).show();
+		Intent myIntent = new Intent(this, MainActivity.class);
+		this.startActivity(myIntent);
 
 
 

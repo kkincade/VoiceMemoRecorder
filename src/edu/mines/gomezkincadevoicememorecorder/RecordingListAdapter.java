@@ -3,6 +3,7 @@ package edu.mines.gomezkincadevoicememorecorder;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,17 +12,15 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 public class RecordingListAdapter extends BaseAdapter {
-	//private final Context context;
-	private final String[] values;
+	private final Context context;
 	private LayoutInflater inflater;
 	private int count;
-
-	public RecordingListAdapter(Context context, String[] values, int count) {
+	private ArrayList<AudioRecording> recordings;
+	public RecordingListAdapter(Context context, ArrayList<AudioRecording> recordings) {
 		super();
-		//this.context = context;
-		this.values = values;
-		this.count = count;
+		this.context = context;
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.recordings = recordings;
 	}
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -30,10 +29,17 @@ public class RecordingListAdapter extends BaseAdapter {
 		TextView recordingTitle = (TextView) convertView.findViewById(R.id.recording_name);
 		TextView recordingDate = (TextView) convertView.findViewById(R.id.recording_date);
 		TextView recordingLength = (TextView) convertView.findViewById(R.id.recording_length);
-
-		recordingTitle.setText(values[0]);
-		recordingDate.setText(values[1]);
-		recordingLength.setText(values[2]);
+		String recordingT;
+		String recordingD;
+		String recordingL;
+		for(AudioRecording r : recordings) {
+			recordingT = r.getName();
+			recordingD = r.getDate();
+			recordingL = r.getLength();
+			recordingTitle.setText(recordingT);
+			recordingDate.setText(recordingD);
+			recordingLength.setText(recordingL);
+		}
  
 		return convertView;
 
@@ -42,7 +48,7 @@ public class RecordingListAdapter extends BaseAdapter {
 	@Override
 	public int getCount() {
 		// TODO Auto-generated method stub
-		return count;
+		return recordings.size();
 	}
 
 	@Override
