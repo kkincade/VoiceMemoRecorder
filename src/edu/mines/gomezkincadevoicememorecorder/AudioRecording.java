@@ -13,13 +13,14 @@ public class AudioRecording implements Serializable {
 	private String subject;
 	private String notes;
 	private String date;
-	private String length;
+	private String duration;
+	
 	public AudioRecording(File audioFile, String name, String subject, String notes, String date, String length) {
 		this.audioFile = audioFile;
 		this.name = name;
 		this.subject = subject;
 		this.date = date;
-		this.length = length;
+		this.duration = length;
 		this.setNotes(notes);
 	}
 
@@ -31,12 +32,12 @@ public class AudioRecording implements Serializable {
 		this.date = date;
 	}
 
-	public String getLength() {
-		return length;
+	public String getDuration() {
+		return duration;
 	}
 
-	public void setLength(String length) {
-		this.length = length;
+	public void setDuration(String duration) {
+		this.duration = duration;
 	}
 
 	/** Getters and Setters **/

@@ -14,6 +14,9 @@
     <string name="subject_hint">Type of recording&#8230;</string>
     <string name="no_recordings">No Recordings</string>
     <string name="confirm">Confirm</string>
+    <string name="untitled">Untitled</string>
+    <string name="date">Date</string>
+    <string name="duration">Duration</string>
 
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>

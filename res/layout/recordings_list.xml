@@ -2,13 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black"
     android:orientation="vertical" >
 
     <ListView
         android:id="@+id/recording_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="8"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@color/white"
+        android:dividerHeight="1dip"
+        android:background="@color/black"
         android:clickable="true" >
 
     </ListView>
@@ -17,8 +21,8 @@
         android:id="@+id/listview_play"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="bottom|center_horizontal"
+        android:layout_weight="0"
+        android:gravity="bottom|center"
         android:onClick="playAudioFile"
         android:text="@string/play" />
 
