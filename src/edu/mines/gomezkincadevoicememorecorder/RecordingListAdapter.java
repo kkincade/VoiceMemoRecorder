@@ -15,6 +15,7 @@ public class RecordingListAdapter extends BaseAdapter {
 	private LayoutInflater inflater;
 	private ArrayList<AudioRecording> recordings;
 	
+	
 	/** Initializes the inflater that will create each individual row view. Also initializes the context and recordings objects. **/
 	public RecordingListAdapter(Context context, ArrayList<AudioRecording> recordings) {
 		super();
@@ -36,14 +37,14 @@ public class RecordingListAdapter extends BaseAdapter {
 		
 		// Get AudioRecording object for that row and modify the TextViews
 		AudioRecording recording = (AudioRecording) getItem(position); 
-		Log.d("RECORDING NAME", "a" + recording.getName() + "a");
+
 		if (recording.getName().equals("")) {
 			recordingName.setText(R.string.untitled);
 		} else {
 			recordingName.setText(recording.getName());
 		}
 		recordingDate.setText(recording.getDate());
-		recordingLength.setText(recording.getDuration());
+		recordingLength.setText(recording.getDuration() + "s");
  
 		return rowView;
 	}

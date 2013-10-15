@@ -75,37 +75,19 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="bottom"
-        android:orientation="horizontal" >
+        android:gravity="bottom|center"
+        android:orientation="horizontal" 
+        android:weightSum="1.0">
 
         <ToggleButton
             android:id="@+id/record_button"
-            android:layout_width="fill_parent"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight=".3"
             android:onClick="record"
+            android:textColor="@color/white"
             android:textOff="@string/record"
-            android:textOn="@string/pause"
-            android:textColor="@color/white" />
-        <Button
-            android:id="@+id/save_button"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="save"
-            android:text="@string/save"
-            android:textColor="@color/white" 
-            android:enabled="false"/>
-        
-        <Button
-            android:id="@+id/playback_button"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="playback"
-            android:text="@string/play"
-            android:textColor="@color/white" 
-            android:enabled="false"/>
+            android:textOn="@string/stop" />
 
     </LinearLayout>
 

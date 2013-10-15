@@ -13,7 +13,8 @@
         android:divider="@color/white"
         android:dividerHeight="1dip"
         android:background="@color/black"
-        android:clickable="true" >
+        android:clickable="true" 
+        android:longClickable="true" >
 
     </ListView>
 
