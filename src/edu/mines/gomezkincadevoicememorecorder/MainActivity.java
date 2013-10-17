@@ -5,54 +5,74 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
-
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.EditText;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 /**
- * MainActivity allows users to record and stop recording audio. Once a voice recording
- * is stoped, it is saved andstored into an AudioRecording object and passed to RecordingsList where it is displayed
- * in a table view.
- *
- * http://stackoverflow.com/questions/8499042/android-audiorecord-example
- * http://theopentutorials.com/tutorials/android/listview/android-custom-listview-with-image-and-text-using-baseadapter/
- * http://stackoverflow.com/questions/4178168/how-to-programmatically-move-copy-and-delete-files-and-directories-on-sd
- * http://developer.android.com/reference/android/media/MediaRecorder.html
+ * NOTE: This app must be deployed to a device and cannot be run through an emulator. Android emulators do not support
+ * the use of the computer's built in microphone and the application will crash when trying to record audio. Any Android
+ * device will suffice.
+ * 
+ * The Voice Memo Recorder app allows you to record audio recordings which are saved to a database built into your 
+ * Android device. There are two main screens in the application: the recording screen (MainActivity) and a list of your
+ * saved recordings (RecordingList). We realize our app is not the most flashy of apps, but the functionality is solid. 
+ * We plan to make it look pretty for App #3.
+ * 
+ * MainActivity allows users to record and stop recording audio. Simply enter a title and subject for your recording and
+ * press the record button to begin recording audio. Once a voice recording is stopped, it is passed to RecordingsList 
+ * where it is saved to the database and populated in a table view. If you do not wish to record anything but simply view
+ * your list of recordings, swipe to the left on the screen (we realize we need some sort of way to display this to the user, 
+ * but we ran out of time).
+ * 
+ * Once in the list of recordings, tap on a saved recording to enable the play button. You can playback any of the voice memos
+ * you have saved in the database. To delete a recording, long press on a ListView item and click "OK". Simply press the back 
+ * button to get back to the main recording screen.
+ * 
+ * Our group ran out of time to implement the ability to add notes or edit any of the information corresponding to a voice memo.
+ * We plan to further develop this application, and this will be one of the additions to our App #3.
+ * 
+ * References:
+ * (Media recorder).........http://developer.android.com/reference/android/media/MediaRecorder.html
+ * (BaseAdapter/ListView)...http://theopentutorials.com/tutorials/android/listview/android-custom-listview-with-image-and-text-using-baseadapter/
+ * (Copy method)............http://stackoverflow.com/questions/4178168/how-to-programmatically-move-copy-and-delete-files-and-directories-on-sd 
+ * (Database)...............http://developer.android.com/training/notepad/index.html
+ * (Swipe Gesture)..........http://stackoverflow.com/questions/4139288/android-how-to-handle-right-to-left-swipe-gestures
  * 
  * @authors - Kameron Kincade, Gonzalo Gomez, and Israel Gomez
  **/
 
 public class MainActivity extends Activity {
 
-	private ArrayList<AudioRecording> recordings = new ArrayList<AudioRecording> ();
-	public final static String RECORDINGS = "recordings";
+	public final static String RECORDING = "recording";
 	private String originalAudioFilePath = null;
 	private double recordingDuration = 0;
-	private long timeWhenStopped = 0;
+	private int numberOfSavedRecordings = 0;
 	private MediaRecorder recorder = null;
-	private int numberOfSavedRecordings = 0; // TODO: Save this as a preference
 
 	// List of widgets
 	private EditText nameEditText;
 	private EditText subjectEditText;
 	private Chronometer chronometer;
 	private ToggleButton recordButton;
+	private SharedPreferences sharedPreferences;
 
+	/** In onCreate(), the application checks our shared preferences for an integer used to 
+	 * uniquely name our audio files. It also instantiates the application's widgets, 
+	 * variables, and an OnSwipeTouchListener for navigating to the RecordingsList activity. **/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -69,39 +89,36 @@ public class MainActivity extends Activity {
 		View mainView = findViewById(android.R.id.content);
 		final Intent recordingListIntent = new Intent(this, RecordingsList.class);
 		
+		// Load number of recordings (used for uniquely naming audio file paths) from shared preferences
+		sharedPreferences = getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
+		numberOfSavedRecordings = sharedPreferences.getInt("number_of_saved_recordings", -1);
+
 		// Uses an on swipe listener
 		mainView.setOnTouchListener(new OnSwipeTouchListener() {
 		    public void onSwipeLeft() {
-		        Toast.makeText(MainActivity.this, "left", Toast.LENGTH_SHORT).show();
-		        recordingListIntent.putExtra(RECORDINGS, recordings);
+		        recordingListIntent.putExtra(RECORDING, new AudioRecording(null, null, null, null, null, null));
 				startActivityForResult(recordingListIntent, 100);
 		    }
 		});
 	}
 
 
-	/** Record/Pause button is a toggle button. This method first determines whether record or pause was clicked. 
+	/** Record/Pause button is a toggle button. This method first determines whether "record" or "stop" was clicked. 
 	 * Record: Initializes the MediaRecorder object, starts the chronometer, and starts recording audio.
-	 * Pause: Stops recording, merges audio files (if it is the second or more time pause has been clicked), enables save button.  **/
-	public void record(View v) {
-
+	 * Stop: Stops recording and saves it.  **/
+	public void record( View v ) {
 		if (v.getId() == R.id.record_button) {
 			// Record
 			if (recordButton.isChecked()) {
-				// Starting fresh recording
-				if (null == recorder) {
-					Log.d("VOICE MEMO RECORDER", "Start Recording");
-					recorder = new MediaRecorder();
-					recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-					recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-					recorder.setOutputFile(originalAudioFilePath);
-					recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-					chronometer.setBase(SystemClock.elapsedRealtime());
-				// Continuing paused recording
-				} else {
-					chronometer.setBase(SystemClock.elapsedRealtime() + timeWhenStopped);
-				}
+				Log.d("VOICE MEMO RECORDER", "Start Recording");
+				recorder = new MediaRecorder();
+				recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+				recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+				recorder.setOutputFile(originalAudioFilePath);
+				recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+				chronometer.setBase(SystemClock.elapsedRealtime());
 
+				// Prepare MediaRecorder
 				try {
 					recorder.prepare();
 				} catch (IOException e) {
@@ -109,6 +126,7 @@ public class MainActivity extends Activity {
 					return;
 				}
 				
+				// Start recorder and chronometer
 				recorder.start();
 				chronometer.start();
 
@@ -131,45 +149,43 @@ public class MainActivity extends Activity {
 
 		// Stop chronometer
 		chronometer.stop();
-		timeWhenStopped = chronometer.getBase() - SystemClock.elapsedRealtime();
 		recordingDuration = (SystemClock.elapsedRealtime() - chronometer.getBase())/1000.0;
 	}
 
 	
 	/** Copies the audio file to a unique name so it won't get overridden.
-	 * Then passes the AudioRecording object to the ListView. **/
+	 * Then calls pushRecordingToList(), passing it the path to the audio file it just created. **/
 	public void saveRecording() {
 		Log.d("VOICE MEMO RECORDER", "Save Recording");
 
-		// Merge two audio files
+		// Create unique path for audio file
 		String uniquePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/audio_recording_" + Integer.toString(numberOfSavedRecordings) + ".3gp";
 		numberOfSavedRecordings += 1;
-		File originalFile = new File(originalAudioFilePath);
 
-		File uniqueFile = new File(uniquePath);
-
-		// Copy audio file to a unique name
+		// Copy audio file to the unique path
 		try {
+			File originalFile = new File(originalAudioFilePath);
+			File uniqueFile = new File(uniquePath);
 			copy(originalFile, uniqueFile);
 			originalFile.delete();
 		} catch (IOException e) {
 			Log.d("VOICE MEMO RECORDER", "Failed to copy file to new location.");
 			e.printStackTrace();
 		}
-
-		pushRecordingToList(uniqueFile);
+		pushRecordingToList(uniquePath);
 	}
 
 
-	/** Creates an AudioRecording object with appropriate audio recording and info from text boxes, adds the object to the 
-	 * ArrayList "recordings", and starts the ListView activity **/ 
-	public void pushRecordingToList(File audioFile) {
+	/** Creates an AudioRecording object with appropriate audio recording and info from text boxes,
+	 *  starts the ListView activity, and passes the AudioRecording object to the ListView.
+	 *  
+	 *  @param: audioFilePath - The string path of where the voice memo's audio file is saved **/ 
+	public void pushRecordingToList(String audioFilePath) {
 		// Get current date
 		String date = formatDate();
 
 		// Create new AudioRecording object and add it to the ArrayList
-		AudioRecording recording = new AudioRecording(audioFile, nameEditText.getText().toString(), subjectEditText.getText().toString(), "", date, Double.toString(recordingDuration));
-		recordings.add(recording);
+		AudioRecording recording = new AudioRecording(audioFilePath, nameEditText.getText().toString(), subjectEditText.getText().toString(), "", date, Double.toString(recordingDuration));
 
 		// Reset MainActivity for a fresh recording
 		nameEditText.setText("");
@@ -177,29 +193,17 @@ public class MainActivity extends Activity {
 		
 		// Reset the chronometer
 		chronometer.setBase(SystemClock.elapsedRealtime());
-		timeWhenStopped = 0;
+		
+		// Save the number of recordings currently in database (used for uniquely naming the audio file paths)
+		sharedPreferences = getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putInt("number_of_saved_recordings", numberOfSavedRecordings);
+		editor.commit();
 
 		// Start ListView Activity
 		Intent myIntent = new Intent(this, RecordingsList.class); // Had to add new activity tag in Manifest.xml
-		myIntent.putExtra(RECORDINGS, recordings);
-		startActivityForResult(myIntent, 100); // 100 is just a code to identify the returning result
-	}
-
-
-	/** This method is called when the user quits the ListView screen. It simply copies the ArrayList of AudioRecordings from the ListView
-	 * back into the ArrayList of AudioRecordings in MainActivity. This is needed if the user modified any information of any recordings in the ListView. **/
-	@SuppressWarnings("unchecked") // Added because we know that the recordings are the only serialized objects we are passing back and forth.
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.d("VOICE RECORDER", "onActivityResult --- " + Integer.toString(resultCode));
-		super.onActivityResult(requestCode, resultCode, data);
-		
-		if (requestCode == 100) {
-			if (resultCode == RESULT_OK) {     
-				recordings = (ArrayList<AudioRecording>) data.getSerializableExtra(RECORDINGS);     
-				Log.d("RECORDINGS SIZE", Integer.toString(recordings.size()));
-			}
-		}
+		myIntent.putExtra(RECORDING, recording);
+		startActivity(myIntent);
 	}
 
 
@@ -213,7 +217,11 @@ public class MainActivity extends Activity {
 	}
 
 
-	/** Helper method to copy file to a unique path, so it won't get overridden later by a new recording **/
+	/** Helper method to copy file to a unique path, so it won't get overridden later by a new recording.
+	 * This piece of code was borrowed from Stack Overflow (see references at top).
+	 * 
+	 * @param: src - source audio file that needs to be copied
+	 * @param: dst - destination file where the audio file should be copied to**/
 	public void copy(File src, File dst) throws IOException {
 		FileInputStream in = new FileInputStream(src);
 		FileOutputStream out = new FileOutputStream(dst);

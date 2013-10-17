@@ -6,16 +6,22 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
+/** This piece of code was borrowed from Stack Overflow:
+ * http://stackoverflow.com/questions/4139288/android-how-to-handle-right-to-left-swipe-gestures
+ *
+ * It is pretty much verbatim how they had it. It uses a deprecated GestureDetector, but we feel as
+ * though this is not too pressing of an issue and it seems to work fine on all of our devices.
+ */
 public class OnSwipeTouchListener implements OnTouchListener {
 
-    private final GestureDetector gestureDetector = new GestureDetector(new GestureListener());
+    @SuppressWarnings("deprecation")
+	private final GestureDetector gestureDetector = new GestureDetector(new GestureListener());
 
     public boolean onTouch(final View view, final MotionEvent motionEvent) {
         return gestureDetector.onTouchEvent(motionEvent);
     }
 
     private final class GestureListener extends SimpleOnGestureListener {
-
         private static final int SWIPE_THRESHOLD = 100;
         private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
@@ -54,15 +60,8 @@ public class OnSwipeTouchListener implements OnTouchListener {
         }
     }
 
-    public void onSwipeRight() {
-    }
-
-    public void onSwipeLeft() {
-    }
-
-    public void onSwipeTop() {
-    }
-
-    public void onSwipeBottom() {
-    }
+    public void onSwipeRight() { }
+    public void onSwipeLeft() { }
+    public void onSwipeTop() { }
+    public void onSwipeBottom() { }
 }

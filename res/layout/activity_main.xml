@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,6 +11,7 @@
     android:background="@color/black">
 
     <LinearLayout
+        android:id="@+id/edit_name_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
@@ -37,8 +38,10 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/edit_subject_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/edit_name_layout"
         android:orientation="horizontal" >
 
         <TextView
@@ -68,16 +71,19 @@
         android:id="@+id/chronometer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:textColor="@color/red"
         android:textSize="30sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
         android:gravity="bottom|center"
-        android:orientation="horizontal" 
-        android:weightSum="1.0">
+        android:orientation="horizontal"
+        android:weightSum="1.0" >
 
         <ToggleButton
             android:id="@+id/record_button"
@@ -91,4 +97,4 @@
 
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

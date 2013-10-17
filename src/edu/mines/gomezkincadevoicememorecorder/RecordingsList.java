@@ -5,14 +5,15 @@ import java.io.IOException;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import java.util.ArrayList;
+import android.widget.Button;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -21,52 +22,77 @@ import android.widget.ListView;
 
 public class RecordingsList extends Activity {
 	private ListView listView;
-	private RecordingListAdapter adapter;
-	private ArrayList<AudioRecording> recordings = new ArrayList<AudioRecording> ();
-	private AudioRecording currentRecording;
+	private AudioRecording recording;
+	private String currentAudioFilePath;
 	private MediaPlayer player;
-
-	/** Initializes the layout, grabs the serialized recordings ArrayList object, creates a ListView, and then sets the adapter. **/ 
-	@SuppressWarnings("unchecked") // We suppressed this warning because we know that the only object we are serializing is the ArrayList of AudioRecording objects
+    private RecordingsListAdapter databaseHelper;
+    private Cursor recordingsCursor;
+    private Button playButton;
+    private Button pauseButton;
+    private Button stopButton;
+    private boolean playbackIsPaused = false;
+    
+    
+	/** Initializes the layout, grabs the recording object passed from MainActivity, creates a ListView, and then sets the adapter. **/ 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.d("RECORDINGS LIST VIEW", "onCreate()");
+		Log.d("RECORDINGS LIST", "onCreate()");
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
 		setContentView(R.layout.recordings_list);
 		final Context context = this;
-
-		listView = (ListView) findViewById(R.id.recording_list);
-		recordings = (ArrayList<AudioRecording>) getIntent().getSerializableExtra(MainActivity.RECORDINGS);
-		adapter = new RecordingListAdapter(this, recordings);
-		listView.setAdapter(adapter);
+		
 		player = new MediaPlayer();
-		if (recordings.size() > 0) {
-			currentRecording = (AudioRecording) adapter.getItem(recordings.size() - 1); // Set current recording to the last audio recording
+		listView = (ListView) findViewById(R.id.recording_list);
+		playButton = (Button) findViewById(R.id.play_button);
+		pauseButton = (Button) findViewById(R.id.pause_button);
+		stopButton = (Button) findViewById(R.id.stop_button);
+		
+		recording = (AudioRecording) getIntent().getSerializableExtra(MainActivity.RECORDING);
+		
+		databaseHelper = new RecordingsListAdapter(this);
+		databaseHelper.open();
+		
+		// Create recording if the user recorded audio in MainActivity. Will be null if they used swipe gesture to access the ListView
+		if (recording.getAudioFilePath() != null) {
+			databaseHelper.createRecording(recording);	
 		}
-		// onClick Listener for the ListView items
+		
+		fillData();
+
+		/** onClick Listener for the ListView items. Once an item is clicked, that row's audio file path
+		 * is set as the currentAudioFilePath, and the play button is enabled for playback. **/
 		listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View v, int position, long id) {
-				currentRecording = (AudioRecording) adapter.getItemAtPosition(position);
+				Log.d("RECORDINGS LIST", "onItemClick()");
+				final Cursor c = recordingsCursor;
+		        c.moveToPosition(position);
+		        currentAudioFilePath = c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDING));
+		        playButton.setEnabled(true);
 			}
 		});
 
-		// longClick listener to see if user wants to delete the recording
+		/** longClick listener to see if user wants to delete the recording **/
 		listView.setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> adptr, View v, final int position, long id) {
-				String recordingName = recordings.get(position).getName();
+				Log.d("RECORDINGS LIST", "onItemLongClick()");
+				
+				final Cursor c = recordingsCursor;
+		        c.moveToPosition(position);
+				String recordingName = c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NAME));
+				
+				// Display dialog asking if user wants to delete the voice memo
 				new AlertDialog.Builder(context)
 				.setTitle("Delete Recording?")
 				.setMessage("Are you sure you want to delete " + recordingName + "?")
 				.setIcon(android.R.drawable.ic_dialog_alert)
 				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						// Okay button not clicked
+						// Okay button clicked
 						if (whichButton == -1) {
-							recordings.remove(position);
-							adapter.notifyDataSetChanged();
-							prepareRecordingsList();
+							databaseHelper.deleteRecording(c.getPosition() + 1);
+			                fillData();
 							return;
 						}
 					}})
@@ -74,66 +100,93 @@ public class RecordingsList extends Activity {
 				return true;
 			}
 		}); 
-
 	}
+	
+	/** fillData() iterates over every row in the database table and creates a row in the ListView with the corresponding
+	 * values substituted in. We understand that startManagingCursor() is deprecated and we plan to look into an alternative
+	 * using the CursorLoader for App #3.
+	 */
+	@SuppressWarnings("deprecation")
+	private void fillData() {
+		Log.d("RECORDINGS LIST", "fillData()");
+        // Get all of the rows from the database and create the item list
+        recordingsCursor = databaseHelper.fetchAllRecordings();
+        startManagingCursor(recordingsCursor);
 
+        // Create an array to specify the fields we want to display in the list (only TITLE)
+        String[] from = new String[]{RecordingsListAdapter.KEY_NAME, RecordingsListAdapter.KEY_DATE, RecordingsListAdapter.KEY_LENGTH};
 
-	/** Returns the list of recordings, just in case any of the recording objects were modified within the List View. Then finishes the Activity. **/
-	public void prepareRecordingsList() {
-		Log.d("RECORDINGS LIST VIEW", "prepareRecordingsList()");
-		Intent myIntent = new Intent();
-		myIntent.putExtra(MainActivity.RECORDINGS, recordings);
-		setResult(RESULT_OK, myIntent);
-	}
+        // Create an array of the widgets we want to set the fields to
+        int[] to = new int[]{R.id.recording_name, R.id.recording_date, R.id.recording_length};
 
-
-	/** This method instantiates a MediaPlayer object and plays the current selection from the ListView **/
-	public void playAudioFile( View v ) {
-		String audioFilePath = currentRecording.getAudioFile().getAbsolutePath();
-		startPlayback(audioFilePath);
-	}
+        // Now create a simple cursor adapter and set it to display
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.recording_item, recordingsCursor, from, to);
+        listView.setAdapter(adapter);
+    }
 
 
 	/**------------------------------------------ PLAYBACK FUNCTIONS --------------------------------------------**/
 
-	/** Play back the audio the user has recorded if the recording exists and the player is not currently playing **/
-	public void startPlayback(String audioFilePath) {
-		Log.d("RECORDINGS LIST VIEW", "startPlayback()");
+	/** Plays back the currentAudioFilePath if the recording exists and the player is not already currently playing **/
+	public void startPlayback( View v ) {
+		Log.d("RECORDINGS LIST", "startPlayback() --> " + currentAudioFilePath);
+		
 		if (!player.isPlaying()) {
-			player.reset();
-			File audioFile = new File (audioFilePath);
-			if (audioFile.exists()) {
-				try {
-					player.setDataSource(audioFilePath);
-					player.prepare();
-					player.start();
-				} catch (IOException e) {
-					Log.e("AUDIO PLAYER", "prepare() failed");
+			if (playbackIsPaused) {
+				// Just resume playback
+				player.start();
+				playbackIsPaused = false;
+			} else {
+				// Start audio from beginning
+				player.reset();
+				File audioFile = new File (currentAudioFilePath);
+				if (audioFile.exists()) {
+					try {
+						player.setDataSource(currentAudioFilePath);
+						player.prepare();
+						player.start();
+					} catch (IOException e) {
+						Log.e("AUDIO PLAYER", "prepare() failed");
+					}
 				}
 			}
+			
+			// Enable pause and stop buttons and disable play button
+			pauseButton.setEnabled(true);
+			stopButton.setEnabled(true);
+			playButton.setEnabled(false);
 		}
 	}
 
 
 	/** If MediaPlayer is playing audio, this PAUSES playback **/
-	public void pausePlayback() {
-		Log.d("RECORDINGS LIST VIEW", "pausePlayback()");
+	public void pausePlayback( View v ) {
+		Log.d("RECORDINGS LIST", "pausePlayback()");
 		if (player != null) {
 			if (player.isPlaying()) {
 				player.pause();
+				playbackIsPaused = true;
+				playButton.setEnabled(true);
+				pauseButton.setEnabled(false);
+				stopButton.setEnabled(false);
 			}
 		}
 	}
 
 
 	/** If MediaPlayer is playing audio, this STOPS playback and releases the MediaPlayer object **/
-	public void stopPlayback() {
-		Log.d("RECORDINGS LIST VIEW", "stopPlayback()");
+	public void stopPlayback( View v ) {
+		Log.d("RECORDINGS LIST", "stopPlayback()");
 		if (player != null) {
 			if (player.isPlaying()) {
 				player.stop();
 				player.release();
 				player = null;
+
+				//Enable play button and disable pause and stop
+				playButton.setEnabled(true);
+				pauseButton.setEnabled(false);
+				stopButton.setEnabled(false);
 			}
 		}
 	}
@@ -143,38 +196,42 @@ public class RecordingsList extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart(); // Must do this or app will crash!
-		Log.d( "RECORDINGS LIST VIEW", "onStart()..." );
+		Log.d( "RECORDINGS LIST", "onStart()..." );
 	}
 
 	@Override
 	protected void onRestart() {
 		super.onRestart(); // Must do this or app will crash!
-		Log.d( "RECORDINGS LIST VIEW", "onRestart()..." );
+		Log.d( "RECORDINGS LIST", "onRestart()..." );
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume(); // Must do this or app will crash!
-		Log.d( "RECORDINGS LIST VIEW", "onResume()..." );
+		Log.d( "RECORDINGS LIST", "onResume()..." );
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause(); // Must do this or app will crash!
-		Log.d( "RECORDINGS LIST VIEW", "onPause()..." );
-		pausePlayback();
+		Log.d( "RECORDINGS LIST", "onPause()..." );
+		
+		// Pause playback if app is paused.
+		pausePlayback(null);
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop(); // Must do this or app will crash!
-		Log.d( "RECORDINGS LIST VIEW", "onStop()..." );
-		stopPlayback();
+		Log.d( "RECORDINGS LIST", "onStop()..." );
+		
+		// Stop playback if app is stopped.
+		stopPlayback(null);
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy(); // Must do this or app will crash!
-		Log.d( "RECORDINGS LIST VIEW", "onDestroy()..." );
+		Log.d( "RECORDINGS LIST", "onDestroy()..." );
 	}
 }
