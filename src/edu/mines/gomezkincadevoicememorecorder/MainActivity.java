@@ -45,6 +45,9 @@ import android.widget.ToggleButton;
  * Our group ran out of time to implement the ability to add notes or edit any of the information corresponding to a voice memo.
  * We plan to further develop this application, and this will be one of the additions to our App #3.
  * 
+ * POINT DISTRIBUTION: We feel we all contributed equally to the development of the application and would like to each receive
+ * a third of the credit.
+ * 
  * References:
  * (Media recorder).........http://developer.android.com/reference/android/media/MediaRecorder.html
  * (BaseAdapter/ListView)...http://theopentutorials.com/tutorials/android/listview/android-custom-listview-with-image-and-text-using-baseadapter/
