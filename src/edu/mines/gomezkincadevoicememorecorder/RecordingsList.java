@@ -70,8 +70,7 @@ public class RecordingsList extends FragmentActivity {
 				final Cursor c = recordingsCursor;
 		        c.moveToPosition(position);
 		        currentAudioFilePath = c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDING));
-		        playButton.setEnabled(true);
-		        
+		        //playButton.setEnabled(true);
 		        displayRecordingInformation();
 			}
 		});
@@ -141,18 +140,18 @@ public class RecordingsList extends FragmentActivity {
         	// In normal layout
         	Log.d("DFJKSLF", "normal layout");
         	
-//        	// Create fragment and give it an argument for the selected article
-//            RecordingFragment newFragment = new RecordingFragment();
-//            //Bundle args = new Bundle();
-//            //TODO: Pass recording object to the fragment
-//            //args.putInt(RecordingFragment.RECORDING, );
-//            //newFragment.setArguments(args);
-//            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//
-//            // Replace whatever is in the fragment_container view with this fragment,
-//            // and add the transaction to the back stack so the user can navigate back
-//            transaction.replace(R.id.recording_single_pane, newFragment);
-//            transaction.addToBackStack(null);
+        	// Create fragment and give it an argument for the selected article
+            RecordingFragment newFragment = new RecordingFragment();
+            //Bundle args = new Bundle();
+            //TODO: Pass recording object to the fragment
+            //args.putInt(RecordingFragment.RECORDING, );
+            //newFragment.setArguments(args);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            // Replace whatever is in the fragment_container view with this fragment,
+            // and add the transaction to the back stack so the user can navigate back
+            transaction.replace(R.id.recording_single_pane, newFragment);
+            transaction.addToBackStack(null);
         }
 	}
 

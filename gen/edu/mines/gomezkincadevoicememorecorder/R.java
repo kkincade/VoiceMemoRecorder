@@ -32,26 +32,31 @@ public final class R {
     }
     public static final class id {
         public static final int LinearLayout01=0x7f090008;
-        public static final int action_settings=0x7f090019;
+        public static final int action_settings=0x7f09001e;
         public static final int chronometer=0x7f090006;
         public static final int edit_name_layout=0x7f090000;
         public static final int edit_subject_layout=0x7f090003;
         public static final int linear_layout_buttons=0x7f090012;
         public static final int name_edit_text=0x7f090002;
         public static final int name_label=0x7f090001;
-        public static final int pause_button=0x7f090015;
-        public static final int play_button=0x7f090014;
+        public static final int notes_edit_text=0x7f090011;
+        public static final int pause_button=0x7f090014;
+        public static final int play_button=0x7f090013;
         public static final int record_button=0x7f090007;
-        public static final int recording_date=0x7f09000f;
-        public static final int recording_fragment=0x7f090018;
-        public static final int recording_length=0x7f090010;
-        public static final int recording_list=0x7f090013;
-        public static final int recording_list_fragment=0x7f090017;
-        public static final int recording_list_item=0x7f09000d;
-        public static final int recording_list_linear_layout=0x7f090011;
-        public static final int recording_name=0x7f09000e;
+        public static final int recording_date=0x7f090018;
+        public static final int recording_fragment=0x7f09001d;
+        public static final int recording_length=0x7f090019;
+        public static final int recording_list=0x7f09001b;
+        public static final int recording_list_fragment=0x7f09001c;
+        public static final int recording_list_item=0x7f090016;
+        public static final int recording_list_linear_layout=0x7f09001a;
+        public static final int recording_name=0x7f090017;
+        public static final int recording_name_edit_text=0x7f09000e;
+        public static final int recording_name_label=0x7f09000d;
         public static final int recording_single_pane=0x7f09000c;
-        public static final int stop_button=0x7f090016;
+        public static final int recording_subject_edit_text=0x7f090010;
+        public static final int recording_subject_label=0x7f09000f;
+        public static final int stop_button=0x7f090015;
         public static final int subject_edit_text=0x7f090005;
         public static final int subject_label=0x7f090004;
         public static final int todo_edit_button=0x7f09000b;
@@ -76,10 +81,11 @@ public final class R {
         public static final int confirm=0x7f05000d;
         public static final int date=0x7f05000f;
         public static final int duration=0x7f050010;
-        public static final int hello_world=0x7f050012;
+        public static final int hello_world=0x7f050013;
         public static final int name_hint=0x7f05000a;
         public static final int name_label=0x7f050008;
         public static final int no_recordings=0x7f05000c;
+        public static final int notes_hint=0x7f050011;
         public static final int pause=0x7f050003;
         public static final int play=0x7f050007;
         public static final int record=0x7f050002;
@@ -87,7 +93,7 @@ public final class R {
         public static final int stop=0x7f050005;
         public static final int subject_hint=0x7f05000b;
         public static final int subject_label=0x7f050009;
-        public static final int title_activity_recording_list_adapter=0x7f050011;
+        public static final int title_activity_recording_list_adapter=0x7f050012;
         public static final int untitled=0x7f05000e;
     }
     public static final class style {
