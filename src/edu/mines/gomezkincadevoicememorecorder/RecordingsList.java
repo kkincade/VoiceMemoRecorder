@@ -6,13 +6,14 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.View;
@@ -20,7 +21,7 @@ import android.view.Window;
 import android.widget.ListView;
 
 
-public class RecordingsList extends Activity {
+public class RecordingsList extends FragmentActivity {
 	private ListView listView;
 	private AudioRecording recording;
 	private String currentAudioFilePath;
@@ -70,6 +71,8 @@ public class RecordingsList extends Activity {
 		        c.moveToPosition(position);
 		        currentAudioFilePath = c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDING));
 		        playButton.setEnabled(true);
+		        
+		        displayRecordingInformation();
 			}
 		});
 
@@ -123,6 +126,35 @@ public class RecordingsList extends Activity {
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.recording_item, recordingsCursor, from, to);
         listView.setAdapter(adapter);
     }
+	
+	
+	public void displayRecordingInformation() {
+		// Capture the article fragment from the activity layout
+        RecordingFragment recordingFrag = (RecordingFragment) getSupportFragmentManager().findFragmentById(R.id.recording_fragment);
+        
+        if (recordingFrag != null) {
+        	// In large-layout
+        	Log.d("DFJKSLF", "large-layout");
+        	
+        	
+        } else {
+        	// In normal layout
+        	Log.d("DFJKSLF", "normal layout");
+        	
+//        	// Create fragment and give it an argument for the selected article
+//            RecordingFragment newFragment = new RecordingFragment();
+//            //Bundle args = new Bundle();
+//            //TODO: Pass recording object to the fragment
+//            //args.putInt(RecordingFragment.RECORDING, );
+//            //newFragment.setArguments(args);
+//            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//
+//            // Replace whatever is in the fragment_container view with this fragment,
+//            // and add the transaction to the back stack so the user can navigate back
+//            transaction.replace(R.id.recording_single_pane, newFragment);
+//            transaction.addToBackStack(null);
+        }
+	}
 
 
 	/**------------------------------------------ PLAYBACK FUNCTIONS --------------------------------------------**/
