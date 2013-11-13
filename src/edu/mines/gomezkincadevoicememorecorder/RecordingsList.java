@@ -2,6 +2,7 @@ package edu.mines.gomezkincadevoicememorecorder;
 
 import java.io.File;
 import java.io.IOException;
+
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -19,7 +20,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.ListView;
-
 
 public class RecordingsList extends FragmentActivity {
 	private ListView listView;
@@ -40,9 +40,32 @@ public class RecordingsList extends FragmentActivity {
 		Log.d("RECORDINGS LIST", "onCreate()");
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
-		setContentView(R.layout.recordings_list);
+		setContentView(R.layout.recordings_container);
 		final Context context = this;
 		
+		// Check whether the activity is using the layout version with
+        // the fragment_container FrameLayout. If so, we must add the first fragment
+        if (findViewById(R.id.fragment_container) != null) {
+
+            // However, if we're being restored from a previous state,
+            // then we don't need to do anything and should return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null) {
+                return;
+            }
+
+            // Create an instance of ExampleFragment
+            RecordingListFragment firstFragment = new RecordingListFragment();
+
+            // In case this activity was started with special instructions from an Intent,
+            // pass the Intent's extras to the fragment as arguments
+            firstFragment.setArguments(getIntent().getExtras());
+
+            // Add the fragment to the 'fragment_container' FrameLayout
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, firstFragment).commit();
+        }
+        
 		player = new MediaPlayer();
 		listView = (ListView) findViewById(R.id.recording_list);
 		playButton = (Button) findViewById(R.id.play_button);
@@ -129,7 +152,7 @@ public class RecordingsList extends FragmentActivity {
 	
 	public void displayRecordingInformation() {
 		// Capture the article fragment from the activity layout
-        RecordingFragment recordingFrag = (RecordingFragment) getSupportFragmentManager().findFragmentById(R.id.recording_fragment);
+        RecordingFragment recordingFrag = (RecordingFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
         
         if (recordingFrag != null) {
         	// In large-layout

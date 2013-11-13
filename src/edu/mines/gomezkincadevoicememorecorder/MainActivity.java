@@ -23,6 +23,13 @@ import android.widget.EditText;
 import android.widget.ToggleButton;
 
 /**
+ * NOTE: We have run into a problem implementing a custom list adapter while using multiple fragments. We would like to discuss with
+ * you the problem and see if we can brainstorm how to fix the issue. The app will crash when you try to access the recordings list
+ * because of the way the custom list adapter works with fragments and contains errors as we were trying different implementations
+ * and still unable to get it working. The problem is that all the examples set their adapter in fragment that they are launching. 
+ * However, we can't do that because our adapter has to be set in an activity in order to pass it the context. We have searched for
+ * solutions and tried to figure out a way to incorporate the best of both worlds, but can't seem to figure out a way to do so.
+ * 
  * NOTE: This app must be deployed to a device and cannot be run through an emulator. Android emulators do not support
  * the use of the computer's built in microphone and the application will crash when trying to record audio. Any Android
  * device will suffice.
