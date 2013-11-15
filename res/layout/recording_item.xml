@@ -18,7 +18,7 @@
                 android:paddingTop="5dp"
                 android:paddingLeft="20dp"
                 android:text="@string/name_hint"
-                android:textColor="@color/white"
+                android:textColor="@color/green"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -30,7 +30,7 @@
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
                 android:text="@string/date"
-                android:textColor="@color/white" />
+                android:textColor="@color/green" />
         </LinearLayout>
 
         <TextView
@@ -41,6 +41,6 @@
             android:layout_weight="1"
             android:gravity="center|left"
             android:text="@string/duration"
-            android:textColor="@color/white" />
+            android:textColor="@color/green" />
 
 </LinearLayout>

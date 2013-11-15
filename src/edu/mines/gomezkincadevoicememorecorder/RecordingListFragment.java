@@ -3,6 +3,10 @@ package edu.mines.gomezkincadevoicememorecorder;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,6 +40,10 @@ public class RecordingListFragment extends ListFragment {
     @Override
     public void onStart() {
         super.onStart();
+        ListView list = this.getListView();
+        list.setDividerHeight(2);
+//        int color = Color.parseColor("7CFC00");
+//        list.getDivider().setColorFilter(color);
 
         // When in two-pane layout, set the listview to highlight the selected list item
         // (We do this during onStart because at the point the listview is available.)
