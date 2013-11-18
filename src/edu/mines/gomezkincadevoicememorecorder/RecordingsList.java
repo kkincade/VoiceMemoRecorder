@@ -21,7 +21,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ListView;
 
-public class RecordingsList extends FragmentActivity {
+public class RecordingsList extends FragmentActivity implements RecordingListFragment.OnRecordingSelectedListener {
 	private ListView listView;
 	private AudioRecording recording;
 	private String currentAudioFilePath;
@@ -172,19 +172,19 @@ public class RecordingsList extends FragmentActivity {
 
 		// Now create a simple cursor adapter and set it to display
 		adapter = new SimpleCursorAdapter(this, R.layout.recording_item, recordingsCursor, from, to);
-		//		listView.setAdapter(adapter);
-
 	}
 
 
-	public void displayRecordingInformation() {
+	public void displayRecordingInformation(int position) {
 		// Capture the article fragment from the activity layout
 		RecordingFragment recordingFrag = (RecordingFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
 
 		if (recordingFrag != null) {
 			// In large-layout
 			Log.d("DFJKSLF", "large-layout");
-
+			
+			// Call a method in the ArticleFragment to update its content
+            recordingFrag.updateArticleView(position);
 
 		} else {
 			// In normal layout
@@ -200,9 +200,16 @@ public class RecordingsList extends FragmentActivity {
 
 			// Replace whatever is in the fragment_container view with this fragment,
 			// and add the transaction to the back stack so the user can navigate back
-			transaction.replace(R.id.recording_single_pane, newFragment);
+			transaction.replace(R.id.fragment_container, newFragment);
 			transaction.addToBackStack(null);
+			transaction.commit();
 		}
+	}
+	
+	@Override
+	public void onRecordingSelected(int position) {
+		// TODO Auto-generated method stub
+		displayRecordingInformation(position);
 	}
 
 

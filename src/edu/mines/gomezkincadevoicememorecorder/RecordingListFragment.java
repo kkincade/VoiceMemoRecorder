@@ -1,28 +1,20 @@
 package edu.mines.gomezkincadevoicememorecorder;
 
 import android.app.Activity;
-import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff.Mode;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class RecordingListFragment extends ListFragment {
-	private ListView listView;
-	OnHeadlineSelectedListener mCallback;
+	OnRecordingSelectedListener mCallback;
 
     // The container Activity must implement this interface so the frag can deliver messages
-    public interface OnHeadlineSelectedListener {
+    public interface OnRecordingSelectedListener {
         /** Called by HeadlinesFragment when a list item is selected */
-        public void onArticleSelected(int position);
+        public void onRecordingSelected(int position);
     }
 
     @Override
@@ -42,6 +34,7 @@ public class RecordingListFragment extends ListFragment {
         super.onStart();
         ListView list = this.getListView();
         list.setDividerHeight(2);
+        
 //        int color = Color.parseColor("7CFC00");
 //        list.getDivider().setColorFilter(color);
 
@@ -56,15 +49,22 @@ public class RecordingListFragment extends ListFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        // This makes sure that the container activity has implemented
-        // the callback interface. If not, it throws an exception.
-//        try {
-//            mCallback = (OnHeadlineSelectedListener) activity;
-//        } catch (ClassCastException e) {
-//            throw new ClassCastException(activity.toString()
-//                    + " must implement OnHeadlineSelectedListener");
-//        }
+        // This makes sure that the container activity has implemented the callback interface. If not, it throws an exception.
+        try {
+            mCallback = (OnRecordingSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnHeadlineSelectedListener");
+        }
     }
 
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+    	Log.d("POSITION", Integer.toString(position));
+        // Notify the parent activity of selected item
+        mCallback.onRecordingSelected(position);
+        
+        // Set the item as checked to be highlighted when in two-pane layout
+        getListView().setItemChecked(position, true);
+    }
     
 }
