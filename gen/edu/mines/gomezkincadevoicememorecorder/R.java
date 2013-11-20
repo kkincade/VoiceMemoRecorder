@@ -32,7 +32,7 @@ public final class R {
         public static final int microphone=0x7f020001;
     }
     public static final class id {
-        public static final int action_settings=0x7f09001b;
+        public static final int action_settings=0x7f09001a;
         public static final int chronometer=0x7f090006;
         public static final int edit_name_layout=0x7f090000;
         public static final int edit_subject_layout=0x7f090003;
@@ -47,9 +47,8 @@ public final class R {
         public static final int recording_date=0x7f090014;
         public static final int recording_information_fragment=0x7f090018;
         public static final int recording_length=0x7f090015;
-        public static final int recording_list=0x7f09001a;
+        public static final int recording_list=0x7f090019;
         public static final int recording_list_item=0x7f090012;
-        public static final int recording_list_linear_layout=0x7f090019;
         public static final int recording_name=0x7f090013;
         public static final int recording_name_edit_text=0x7f09000a;
         public static final int recording_name_label=0x7f090009;

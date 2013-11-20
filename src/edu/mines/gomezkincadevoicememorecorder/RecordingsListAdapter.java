@@ -18,7 +18,9 @@ public class RecordingsListAdapter extends BaseAdapter {
 	public static final String KEY_NAME = "name";
 	public static final String KEY_DATE = "date";
 	public static final String KEY_LENGTH = "length";
-	public static final String KEY_RECORDING = "recording";
+	public static final String KEY_RECORDINGPATH = "recording";
+	public static final String KEY_SUBJECT = "subject";
+	public static final String KEY_NOTES = "notes";
 	public static final String KEY_ROWID = "_id";
 	
 	//Database creation sql statement
@@ -85,7 +87,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 		}
 		initialValues.put(KEY_DATE, recording.getDate());
 		initialValues.put(KEY_LENGTH, recording.getDuration());
-		initialValues.put(KEY_RECORDING, recording.getAudioFilePath());
+		initialValues.put(KEY_RECORDINGPATH, recording.getAudioFilePath());
 
 		return database.insert(DATABASE_TABLE, null, initialValues);
 	}
@@ -101,7 +103,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 	
 	/** Queries the database and retrieves all entries in the database table **/
 	public Cursor fetchAllRecordings() {		
-        return database.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_NAME, KEY_DATE, KEY_LENGTH, KEY_RECORDING}, null, null, null, null, null);
+        return database.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_NAME, KEY_DATE, KEY_LENGTH, KEY_RECORDINGPATH}, null, null, null, null, null);
     }
 	
 	
@@ -109,7 +111,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 	 * 
 	 * @param: rowID - the position of the element in the ListView **/
 	public Cursor fetchRecording(long rowId) throws SQLException {
-        Cursor cursor = database.query(true, DATABASE_TABLE, new String[] {KEY_ROWID, KEY_NAME, KEY_DATE, KEY_LENGTH, KEY_RECORDING}, KEY_ROWID + "=" + rowId, null, null, null, null, null);
+        Cursor cursor = database.query(true, DATABASE_TABLE, new String[] {KEY_ROWID, KEY_NAME, KEY_DATE, KEY_LENGTH, KEY_RECORDINGPATH}, KEY_ROWID + "=" + rowId, null, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -123,7 +125,7 @@ public class RecordingsListAdapter extends BaseAdapter {
         args.put(KEY_NAME, recording.getName());
         args.put(KEY_DATE, recording.getDate());
         args.put(KEY_LENGTH, recording.getDuration());
-        args.put(KEY_RECORDING, recording.getAudioFilePath());
+        args.put(KEY_RECORDINGPATH, recording.getAudioFilePath());
 
         return database.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
     }

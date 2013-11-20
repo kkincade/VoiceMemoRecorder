@@ -5,21 +5,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 public class RecordingFragment extends Fragment {
-	final static String ARG_POSITION = "position";
-    int mCurrentPosition = -1;
+	final static String POSITION = "position";
+	private AudioRecording recording;
+    int position = -1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        // If activity recreated (such as from screen rotate), restore
-        // the previous article selection set by onSaveInstanceState().
-        // This is primarily necessary when in the two-pane layout.
-        if (savedInstanceState != null) {
-            mCurrentPosition = savedInstanceState.getInt(ARG_POSITION);
-        }
-
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.recording_information, container, false);
     }
@@ -35,17 +29,20 @@ public class RecordingFragment extends Fragment {
         Bundle args = getArguments();
         if (args != null) {
             // Set article based on argument passed in
-            updateArticleView(args.getInt(ARG_POSITION));
-        } else if (mCurrentPosition != -1) {
+        	position = args.getInt(POSITION);
+        	recording = (AudioRecording) args.getSerializable(MainActivity.RECORDING);
+            updateRecordingInformationView();
+        } else if (position != -1) {
             // Set article based on saved instance state defined during onCreateView
-            updateArticleView(mCurrentPosition);
+            updateRecordingInformationView();
         }
     }
 
-    public void updateArticleView(int position) {
-        //TextView article = (TextView) getActivity().findViewById(R.id.article);
-        //article.setText(Ipsum.Articles[position]);
-        mCurrentPosition = position;
+    public void updateRecordingInformationView() {
+    	EditText recordingName = (EditText) getActivity().findViewById(R.id.recording_name_edit_text);
+    	EditText recordingSubject = (EditText) getActivity().findViewById(R.id.recording_subject_edit_text);
+    	recordingName.setText(recording.getName());
+    	recordingSubject.setText(recording.getSubject());
     }
 
     @Override
@@ -53,6 +50,6 @@ public class RecordingFragment extends Fragment {
         super.onSaveInstanceState(outState);
 
         // Save the current article selection in case we need to recreate the fragment
-        outState.putInt(ARG_POSITION, mCurrentPosition);
+        outState.putInt(POSITION, position);
     }
 }

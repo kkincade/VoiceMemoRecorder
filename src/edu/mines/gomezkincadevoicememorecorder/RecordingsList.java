@@ -2,14 +2,7 @@ package edu.mines.gomezkincadevoicememorecorder;
 
 import java.io.File;
 import java.io.IOException;
-
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -19,10 +12,9 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.ListView;
+
 
 public class RecordingsList extends FragmentActivity implements RecordingListFragment.OnRecordingSelectedListener {
-	private ListView listView;
 	private AudioRecording recording;
 	private String currentAudioFilePath;
 	private MediaPlayer player;
@@ -42,40 +34,12 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
 		setContentView(R.layout.recordings_container);
-		final Context context = this;
-
-		//		// Check whether the activity is using the layout version with
-		//		// the fragment_container FrameLayout. If so, we must add the first fragment
-		//		if (findViewById(R.id.fragment_container) != null) {
-		//
-		//			// However, if we're being restored from a previous state,
-		//			// then we don't need to do anything and should return or else
-		//			// we could end up with overlapping fragments.
-		//			if (savedInstanceState != null) {
-		//				return;
-		//			}
-		//
-		//			// Create an instance of ExampleFragment
-		//			RecordingListFragment firstFragment = new RecordingListFragment();
-		//			firstFragment.setListAdapter(adapter);
-		//
-		//			// In case this activity was started with special instructions from an Intent,
-		//			// pass the Intent's extras to the fragment as arguments
-		//			firstFragment.setArguments(getIntent().getExtras());
-		//
-		//			// Add the fragment to the 'fragment_container' FrameLayout
-		//			getSupportFragmentManager().beginTransaction()
-		//			.add(R.id.fragment_container, firstFragment).commit();
-		//		}
 
 		player = new MediaPlayer();
-		listView = (ListView) findViewById(R.id.recording_list);
 		playButton = (Button) findViewById(R.id.play_button);
 		pauseButton = (Button) findViewById(R.id.pause_button);
 		stopButton = (Button) findViewById(R.id.stop_button);
-
 		recording = (AudioRecording) getIntent().getSerializableExtra(MainActivity.RECORDING);
-
 		databaseHelper = new RecordingsListAdapter(this);
 		databaseHelper.open();
 
@@ -89,9 +53,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		// Check whether the activity is using the layout version with
 		// the fragment_container FrameLayout. If so, we must add the first fragment
 		if (findViewById(R.id.fragment_container) != null) {
-			Log.d("LALA" , "After setting list adapter");
-			// However, if we're being restored from a previous state,
-			// then we don't need to do anything and should return or else
+			// However, if we're being restored from a previous state, then we don't need to do anything and should return or else
 			// we could end up with overlapping fragments.
 			if (savedInstanceState != null) {
 				return;
@@ -99,8 +61,8 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			// Create an instance of ExampleFragment
 			RecordingListFragment firstFragment = new RecordingListFragment();
 			firstFragment.setListAdapter(adapter);
-			// In case this activity was started with special instructions from an Intent,
-			// pass the Intent's extras to the fragment as arguments
+			
+			// In case this activity was started with special instructions from an Intent, pass the Intent's extras to the fragment as arguments
 			firstFragment.setArguments(getIntent().getExtras());
 
 			// Add the fragment to the 'fragment_container' FrameLayout
@@ -179,21 +141,35 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 
 		if (recordingFrag != null) {
 			// In large-layout
-			Log.d("DFJKSLF", "large-layout");
+			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> large-layout");
 			
 			// Call a method in the ArticleFragment to update its content
-            recordingFrag.updateArticleView(position);
+            recordingFrag.updateRecordingInformationView();
 
 		} else {
 			// In normal layout
-			Log.d("DFJKSLF", "normal layout");
+			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> normal-layout");
 
 			// Create fragment and give it an argument for the selected article
 			RecordingFragment newFragment = new RecordingFragment();
-			//Bundle args = new Bundle();
-			//TODO: Pass recording object to the fragment
-			//args.putInt(RecordingFragment.RECORDING, );
-			//newFragment.setArguments(args);
+			Bundle args = new Bundle();
+			
+			// Get information from database
+			final Cursor c = recordingsCursor;
+			c.moveToPosition(position);
+			AudioRecording recordingObject = new AudioRecording(null, null, null, null, null, null);
+			
+			recordingObject.setAudioFilePath(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDINGPATH)));
+			recordingObject.setName(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NAME)));
+			recordingObject.setDate(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_DATE)));
+			
+//			recordingObject.setSubject(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.));
+//			recordingObject.setNotes(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDING));
+			
+			// Pass position in list and recording object to the fragment
+			args.putInt(RecordingFragment.POSITION, position);
+			args.putSerializable(MainActivity.RECORDING, recordingObject);
+			newFragment.setArguments(args);
 			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
 			// Replace whatever is in the fragment_container view with this fragment,
