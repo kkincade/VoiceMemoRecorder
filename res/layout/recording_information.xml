@@ -54,7 +54,7 @@
     </LinearLayout>
 
     <EditText
-        android:id="@+id/notes_edit_text"
+        android:id="@+id/recording_notes_edit_text"
         android:hint="@string/notes_hint"
         android:layout_width="fill_parent"
         android:layout_height="0dip"

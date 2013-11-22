@@ -1,5 +1,7 @@
 package edu.mines.gomezkincadevoicememorecorder;
 
+import java.io.File;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -96,8 +98,20 @@ public class RecordingsListAdapter extends BaseAdapter {
 	/** Deletes a recording from the database using the recording's row ID
 	 * 
 	 * @param: rowID - the position in the ListView of the element that needs to be deleted **/
-	public boolean deleteRecording(long rowId) {
-        return database.delete(DATABASE_TABLE, KEY_ROWID + "=" + rowId, null) > 0;
+	public boolean deleteRecording(int rowId) {
+		Cursor c = fetchAllRecordings();
+		c.moveToPosition(rowId);
+		
+		// Delete the audio file before deleting the database
+		String audioFilePath = c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDINGPATH));
+		File file = new File(audioFilePath);
+		boolean deleted = file.delete();
+		
+		if (deleted) {
+			return database.delete(DATABASE_TABLE, KEY_ROWID + "=" + c.getInt(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_ROWID)), null) > 0;
+		} else {
+			return false;
+		}
     }
 	
 	
@@ -126,6 +140,8 @@ public class RecordingsListAdapter extends BaseAdapter {
         args.put(KEY_DATE, recording.getDate());
         args.put(KEY_LENGTH, recording.getDuration());
         args.put(KEY_RECORDINGPATH, recording.getAudioFilePath());
+        
+        //TODO: Don't use rowId
 
         return database.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
     }

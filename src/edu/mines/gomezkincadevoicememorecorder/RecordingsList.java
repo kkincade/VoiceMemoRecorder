@@ -7,11 +7,14 @@ import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 
 
 public class RecordingsList extends FragmentActivity implements RecordingListFragment.OnRecordingSelectedListener {
@@ -25,6 +28,8 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	private Button pauseButton;
 	private Button stopButton;
 	private boolean playbackIsPaused = false;
+	private ListFragment listFragment;
+	private FragmentManager fragmentManager;
 
 
 	/** Initializes the layout, grabs the recording object passed from MainActivity, creates a ListView, and then sets the adapter. **/ 
@@ -33,6 +38,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		Log.d("RECORDINGS LIST", "onCreate()");
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
+		this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); // Hide keyboard initially
 		setContentView(R.layout.recordings_container);
 
 		player = new MediaPlayer();
@@ -40,6 +46,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		pauseButton = (Button) findViewById(R.id.pause_button);
 		stopButton = (Button) findViewById(R.id.stop_button);
 		recording = (AudioRecording) getIntent().getSerializableExtra(MainActivity.RECORDING);
+		fragmentManager = (FragmentManager) this.getSupportFragmentManager();
 		databaseHelper = new RecordingsListAdapter(this);
 		databaseHelper.open();
 
@@ -50,8 +57,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 
 		fillData();
 		
-		// Check whether the activity is using the layout version with
-		// the fragment_container FrameLayout. If so, we must add the first fragment
+		// Small layout
 		if (findViewById(R.id.fragment_container) != null) {
 			// However, if we're being restored from a previous state, then we don't need to do anything and should return or else
 			// we could end up with overlapping fragments.
@@ -68,49 +74,11 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			// Add the fragment to the 'fragment_container' FrameLayout
 			getSupportFragmentManager().beginTransaction()
 			.add(R.id.fragment_container, firstFragment).commit();
+		// Large layout
+		} else {
+			listFragment = (ListFragment) fragmentManager.findFragmentById(R.id.recording_list_fragment);
+			listFragment.setListAdapter(adapter);
 		}
-		
-		/** onClick Listener for the ListView items. Once an item is clicked, that row's audio file path
-		 * is set as the currentAudioFilePath, and the play button is enabled for playback. **/
-		//		listView.setOnItemClickListener(new OnItemClickListener() {
-		//			@Override
-		//			public void onItemClick(AdapterView<?> adapter, View v, int position, long id) {
-		//				Log.d("RECORDINGS LIST", "onItemClick()");
-		//				final Cursor c = recordingsCursor;
-		//				c.moveToPosition(position);
-		//				currentAudioFilePath = c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDING));
-		//				//playButton.setEnabled(true);
-		//				displayRecordingInformation();
-		//			}
-		//		});
-		//
-		//		/** longClick listener to see if user wants to delete the recording **/
-		//		listView.setOnItemLongClickListener(new OnItemLongClickListener() {
-		//			public boolean onItemLongClick(AdapterView<?> adptr, View v, final int position, long id) {
-		//				Log.d("RECORDINGS LIST", "onItemLongClick()");
-		//
-		//				final Cursor c = recordingsCursor;
-		//				c.moveToPosition(position);
-		//				String recordingName = c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NAME));
-		//
-		//				// Display dialog asking if user wants to delete the voice memo
-		//				new AlertDialog.Builder(context)
-		//				.setTitle("Delete Recording?")
-		//				.setMessage("Are you sure you want to delete " + recordingName + "?")
-		//				.setIcon(android.R.drawable.ic_dialog_alert)
-		//				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-		//					public void onClick(DialogInterface dialog, int whichButton) {
-		//						// Okay button clicked
-		//						if (whichButton == -1) {
-		//							databaseHelper.deleteRecording(c.getPosition() + 1);
-		//							fillData();
-		//							return;
-		//						}
-		//					}})
-		//					.setNegativeButton(android.R.string.no, null).show();
-		//				return true;
-		//			}
-		//		}); 
 	}
 
 	/** fillData() iterates over every row in the database table and creates a row in the ListView with the corresponding
@@ -137,37 +105,42 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 
 	public void displayRecordingInformation(int position) {
 		// Capture the article fragment from the activity layout
-		RecordingFragment recordingFrag = (RecordingFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
+		RecordingInformationFragment recordingFrag = (RecordingInformationFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
 
+		// Get information from database
+		final Cursor c = recordingsCursor;
+		c.moveToPosition(position);
+		AudioRecording recordingObject = new AudioRecording(null, null, null, null, null, null);
+		
+		recordingObject.setAudioFilePath(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDINGPATH)));
+		recordingObject.setName(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NAME)));
+		recordingObject.setDate(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_DATE)));
+		
+		Log.d("NAME", recordingObject.getName());
+		Log.d("DATE", recordingObject.getDate());
+		Log.d("FILEPATH", recordingObject.getAudioFilePath());
+		
+//		recordingObject.setSubject(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.));
+//		recordingObject.setNotes(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDING));
+		
+		
 		if (recordingFrag != null) {
 			// In large-layout
 			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> large-layout");
 			
 			// Call a method in the ArticleFragment to update its content
-            recordingFrag.updateRecordingInformationView();
+            recordingFrag.updateRecordingInformationView(position, recordingObject);
 
 		} else {
 			// In normal layout
 			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> normal-layout");
 
 			// Create fragment and give it an argument for the selected article
-			RecordingFragment newFragment = new RecordingFragment();
+			RecordingInformationFragment newFragment = new RecordingInformationFragment();
 			Bundle args = new Bundle();
-			
-			// Get information from database
-			final Cursor c = recordingsCursor;
-			c.moveToPosition(position);
-			AudioRecording recordingObject = new AudioRecording(null, null, null, null, null, null);
-			
-			recordingObject.setAudioFilePath(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDINGPATH)));
-			recordingObject.setName(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NAME)));
-			recordingObject.setDate(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_DATE)));
-			
-//			recordingObject.setSubject(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.));
-//			recordingObject.setNotes(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDING));
-			
+
 			// Pass position in list and recording object to the fragment
-			args.putInt(RecordingFragment.POSITION, position);
+			args.putInt(RecordingInformationFragment.POSITION, position);
 			args.putSerializable(MainActivity.RECORDING, recordingObject);
 			newFragment.setArguments(args);
 			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -176,13 +149,13 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			// and add the transaction to the back stack so the user can navigate back
 			transaction.replace(R.id.fragment_container, newFragment);
 			transaction.addToBackStack(null);
-			transaction.commit();
+			transaction.commit();	
+			//newFragment.updateRecordingInformationView(position, recordingObject);
 		}
 	}
 	
 	@Override
 	public void onRecordingSelected(int position) {
-		// TODO Auto-generated method stub
 		displayRecordingInformation(position);
 	}
 

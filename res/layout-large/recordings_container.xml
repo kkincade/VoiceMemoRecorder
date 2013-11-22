@@ -3,15 +3,18 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:baselineAligned="false">
-
+    android:baselineAligned="false"
+    android:background="@color/black"
+    android:divider="@color/white">
+    
     <fragment android:name="edu.mines.gomezkincadevoicememorecorder.RecordingListFragment"
-              android:id="@+id/recordings_list_fragment"
+              android:id="@+id/recording_list_fragment"
+              android:background="@color/black"
               android:layout_weight="1"
               android:layout_width="0dp"
               android:layout_height="match_parent" />
 
-    <fragment android:name="edu.mines.gomezkincadevoicememorecorder.RecordingFragment"
+    <fragment android:name="edu.mines.gomezkincadevoicememorecorder.RecordingInformationFragment"
               android:id="@+id/recording_information_fragment"
               android:layout_weight="2"
               android:layout_width="0dp"
