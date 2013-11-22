@@ -193,7 +193,7 @@ public class MainActivity extends Activity {
 	public void pushRecordingToList(String audioFilePath) {
 		// Get current date
 		String date = formatDate();
-
+		
 		// Create new AudioRecording object and add it to the ArrayList
 		AudioRecording recording = new AudioRecording(audioFilePath, nameEditText.getText().toString(), subjectEditText.getText().toString(), "", date, Double.toString(recordingDuration));
 

@@ -115,10 +115,11 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		recordingObject.setAudioFilePath(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDINGPATH)));
 		recordingObject.setName(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NAME)));
 		recordingObject.setDate(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_DATE)));
-		
+		recordingObject.setSubject(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_SUBJECT)));
 		Log.d("NAME", recordingObject.getName());
 		Log.d("DATE", recordingObject.getDate());
 		Log.d("FILEPATH", recordingObject.getAudioFilePath());
+		Log.d("SUBJECT", recordingObject.getSubject());
 		
 //		recordingObject.setSubject(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.));
 //		recordingObject.setNotes(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDING));
@@ -164,6 +165,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 
 	/** Plays back the currentAudioFilePath if the recording exists and the player is not already currently playing **/
 	public void startPlayback( View v ) {
+		setContentView(R.layout.recording_information);
 		Log.d("RECORDINGS LIST", "startPlayback() --> " + currentAudioFilePath);
 
 		if (!player.isPlaying()) {
@@ -197,6 +199,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	/** If MediaPlayer is playing audio, this PAUSES playback **/
 	public void pausePlayback( View v ) {
 		Log.d("RECORDINGS LIST", "pausePlayback()");
+		setContentView(R.layout.recording_information);
 		if (player != null) {
 			if (player.isPlaying()) {
 				player.pause();
@@ -212,6 +215,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	/** If MediaPlayer is playing audio, this STOPS playback and releases the MediaPlayer object **/
 	public void stopPlayback( View v ) {
 		Log.d("RECORDINGS LIST", "stopPlayback()");
+		setContentView(R.layout.recording_information);
 		if (player != null) {
 			if (player.isPlaying()) {
 				player.stop();

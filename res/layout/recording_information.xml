@@ -85,8 +85,7 @@
             android:gravity="center"
             android:onClick="startPlayback"
             android:text="@string/play"
-            android:textColor="@color/white" 
-            android:enabled="false" />
+            android:textColor="@color/white" />
         
         <Button
             android:id="@+id/pause_button"
@@ -99,8 +98,7 @@
             android:gravity="center"
             android:onClick="pausePlayback"
             android:text="@string/pause"
-            android:textColor="@color/white" 
-            android:enabled="false" />
+            android:textColor="@color/white" />
         
         <Button
             android:id="@+id/stop_button"
@@ -112,8 +110,7 @@
             android:gravity="center"
             android:onClick="stopPlayback"
             android:text="@string/stop"
-            android:textColor="@color/white" 
-            android:enabled="false" />
+            android:textColor="@color/white" />
 
     </LinearLayout>
     

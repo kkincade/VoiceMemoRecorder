@@ -2,6 +2,7 @@ package edu.mines.gomezkincadevoicememorecorder;
 
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,7 @@ public class RecordingInformationFragment extends Fragment {
 	public void updateRecordingInformationView(int position, AudioRecording recording) {
 		EditText recordingName = (EditText) getActivity().findViewById(R.id.recording_name_edit_text);
 		EditText recordingSubject = (EditText) getActivity().findViewById(R.id.recording_subject_edit_text);
+//		Log.d("LALA", recording.getSubject());
 		recordingName.setText(recording.getName());
 		recordingSubject.setText(recording.getSubject());
 	}
