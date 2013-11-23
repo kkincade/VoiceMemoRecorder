@@ -1,6 +1,8 @@
 package edu.mines.gomezkincadevoicememorecorder;
 
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,12 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-public class RecordingInformationFragment extends Fragment {
+public class RecordingInformationFragment extends Fragment implements TextWatcher {
 	final static String POSITION = "position";
 	private AudioRecording recording;
 	private RecordingsListAdapter databaseHelper;
+	private CustomTextWatcher textWatcher;
 	private Cursor c;
-	int position = 0;
+	private int position = 0;
 	
 	EditText recordingNameEditText;
 	EditText recordingSubjectEditText;
@@ -32,9 +35,15 @@ public class RecordingInformationFragment extends Fragment {
 		databaseHelper = new RecordingsListAdapter(this.getActivity());
 		databaseHelper.open();
 		
+		textWatcher = new CustomTextWatcher();
+		
 		recordingNameEditText = (EditText) getActivity().findViewById(R.id.recording_name_edit_text);
 		recordingSubjectEditText = (EditText) getActivity().findViewById(R.id.recording_subject_edit_text);
 		recordingNotesEditText = (EditText) getActivity().findViewById(R.id.recording_notes_edit_text);
+		
+		recordingNameEditText.addTextChangedListener(textWatcher);
+		recordingSubjectEditText.addTextChangedListener(textWatcher);
+		recordingNotesEditText.addTextChangedListener(textWatcher);
 		
 		// During startup, check if there are arguments passed to the fragment.
 		// onStart is a good place to do this because the layout has already been
@@ -58,6 +67,10 @@ public class RecordingInformationFragment extends Fragment {
 		recording.setName(recordingNameEditText.getText().toString());
 		recording.setSubject(recordingSubjectEditText.getText().toString());
 		recording.setNotes(recordingNotesEditText.getText().toString());
+	}
+	
+	public void setPosition(int positionArg) {
+		this.position = positionArg;
 	}
 	
 	public AudioRecording getRecordingFromDatabase(int position) {
@@ -101,4 +114,27 @@ public class RecordingInformationFragment extends Fragment {
 	public void onStop() {
 		super.onStop();
 	}
+
+	@Override
+	public void afterTextChanged(Editable arg0) {}
+	@Override
+	public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+	@Override
+	public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+	
+	private class CustomTextWatcher implements TextWatcher {
+		@Override
+		public void afterTextChanged(Editable editable) {
+			Log.d("RECORDING INFO FRAGMENT", "afterTextChanged --> " + Integer.toString(position));
+			databaseHelper.updateRecording(position, recording);
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before, int count) {}
+		
+	}
 }
+
+

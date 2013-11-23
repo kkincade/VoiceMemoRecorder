@@ -22,12 +22,12 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	private MediaPlayer player;
 	private RecordingsListAdapter databaseHelper;
 	private Cursor recordingsCursor;
-	SimpleCursorAdapter adapter;
+	private SimpleCursorAdapter adapter;
 	private Button playButton;
 	private Button pauseButton;
 	private Button stopButton;
 	private boolean playbackIsPaused = false;
-	private ListFragment listFragment;
+	private RecordingListFragment listFragment;
 	private FragmentManager fragmentManager;
 
 
@@ -75,7 +75,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			.add(R.id.fragment_container, firstFragment).commit();
 		// Large layout
 		} else {
-			listFragment = (ListFragment) fragmentManager.findFragmentById(R.id.recording_list_fragment);
+			listFragment = (RecordingListFragment) fragmentManager.findFragmentById(R.id.recording_list_fragment);
 			listFragment.setListAdapter(adapter);
 		}
 	}
@@ -105,15 +105,15 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	public void displayRecordingInformation(int position) {
 		Log.d("RECORDINGS LIST", "displayRecordingInformation()...");
 		// Capture the article fragment from the activity layout
-		RecordingInformationFragment recordingFrag = (RecordingInformationFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
-
-		if (recordingFrag != null) {
+		RecordingInformationFragment recordingInfoFrag = (RecordingInformationFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
+	
+		if (recordingInfoFrag != null) {
 			// In large-layout
 			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> large-layout");
-			
+			recordingInfoFrag.setPosition(position);
 			// Call a method in the ArticleFragment to update its content
-            recordingFrag.updateRecordingInformationView(position);
-
+			databaseHelper.updateRecording(position,recordingInfoFrag.getRecordingFromDatabase(position));
+            recordingInfoFrag.updateRecordingInformationView(position);
 		} else {
 			// In normal layout
 			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> normal-layout");
@@ -132,7 +132,6 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			transaction.replace(R.id.fragment_container, newFragment);
 			transaction.addToBackStack(null);
 			transaction.commit();	
-			//newFragment.updateRecordingInformationView(position, recordingObject);
 		}
 	}
 	

@@ -103,6 +103,7 @@ public class RecordingListFragment extends ListFragment {
 
 		// Now create a simple cursor adapter and set it to display
 		adapter = new SimpleCursorAdapter(getActivity(), R.layout.recording_item, recordingsCursor, from, to);
+		adapter.notifyDataSetChanged();
 		this.setListAdapter(adapter);
 	}
 
