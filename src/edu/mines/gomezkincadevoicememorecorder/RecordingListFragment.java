@@ -15,7 +15,7 @@ import android.widget.ListView;
 
 public class RecordingListFragment extends ListFragment {
 	OnRecordingSelectedListener listener;
-	SimpleCursorAdapter adapter;
+	private SimpleCursorAdapter adapter;
 	private RecordingsListAdapter databaseHelper;
 	private Cursor recordingsCursor;
 
@@ -27,11 +27,13 @@ public class RecordingListFragment extends ListFragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		Log.d("RECORDING LIST FRAGMENT", "onCreate()");
 		super.onCreate(savedInstanceState);
 	}
 
 	@Override
 	public void onStart() {
+		Log.d("RECORDING LIST FRAGMENT", "onStart()");
 		super.onStart();
 		adapter = (SimpleCursorAdapter) this.getListAdapter(); 
 		databaseHelper = new RecordingsListAdapter(this.getActivity());
@@ -41,7 +43,7 @@ public class RecordingListFragment extends ListFragment {
 			@SuppressWarnings("deprecation")
 			@Override
 			public boolean onItemLongClick(AdapterView<?> adptr, View v, final int position, long id) {
-				Log.d("RECORDINGS LIST", "onItemLongClick()");
+				Log.d("RECORDING LIST FRAGMENT", "onItemLongClick()");
 				// Get all of the rows from the database and create the item list
 				Cursor c = databaseHelper.fetchAllRecordings();
 				getActivity().startManagingCursor(c);
@@ -59,16 +61,6 @@ public class RecordingListFragment extends ListFragment {
 						// Okay button clicked
 						if (whichButton == -1) {
 							databaseHelper.deleteRecording(position);
-							recordingsCursor = databaseHelper.fetchAllRecordings();
-							
-							// Create an array to specify the fields we want to display in the list (only TITLE)
-							String[] from = new String[]{RecordingsListAdapter.KEY_NAME, RecordingsListAdapter.KEY_DATE, RecordingsListAdapter.KEY_LENGTH};
-
-							// Create an array of the widgets we want to set the fields to
-							int[] to = new int[]{R.id.recording_name, R.id.recording_date, R.id.recording_length};
-
-							// Now create a simple cursor adapter and set it to display
-							adapter = new SimpleCursorAdapter(getActivity(), R.layout.recording_item, recordingsCursor, from, to);
 							refreshList();
 							return;
 						}
@@ -87,6 +79,7 @@ public class RecordingListFragment extends ListFragment {
 
 	@Override
 	public void onAttach(Activity activity) {
+		Log.d("RECORDING LIST FRAGMENT", "onAttach()");
 		super.onAttach(activity);
 
 		// This makes sure that the container activity has implemented the callback interface. If not, it throws an exception.
@@ -97,16 +90,35 @@ public class RecordingListFragment extends ListFragment {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void refreshList() {
+		Log.d("RECORDING LIST FRAGMENT", "refreshList()");
+		recordingsCursor = databaseHelper.fetchAllRecordings();
+		
+		// Create an array to specify the fields we want to display in the list (only TITLE)
+		String[] from = new String[]{RecordingsListAdapter.KEY_NAME, RecordingsListAdapter.KEY_DATE, RecordingsListAdapter.KEY_LENGTH};
+
+		// Create an array of the widgets we want to set the fields to
+		int[] to = new int[]{R.id.recording_name, R.id.recording_date, R.id.recording_length};
+
+		// Now create a simple cursor adapter and set it to display
+		adapter = new SimpleCursorAdapter(getActivity(), R.layout.recording_item, recordingsCursor, from, to);
 		this.setListAdapter(adapter);
 	}
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
+		Log.d("RECORDING LIST FRAGMENT", "onListItemClick()");
 		// Notify the parent activity of selected item
 		listener.onRecordingSelected(position);
 		// Set the item as checked to be highlighted when in two-pane layout
 		getListView().setItemChecked(position, true);
 	}   
 
+	@Override
+	public void onResume() {
+		Log.d("RECORDING LIST FRAGMENT", "onResume()");
+		super.onResume();
+		refreshList(); 
+	}
 }

@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-
 public class RecordingsList extends FragmentActivity implements RecordingListFragment.OnRecordingSelectedListener {
 	private AudioRecording recording;
 	private String currentAudioFilePath;
@@ -104,33 +103,16 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 
 
 	public void displayRecordingInformation(int position) {
+		Log.d("RECORDINGS LIST", "displayRecordingInformation()...");
 		// Capture the article fragment from the activity layout
 		RecordingInformationFragment recordingFrag = (RecordingInformationFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
 
-		// Get information from database
-		final Cursor c = recordingsCursor;
-		c.moveToPosition(position);
-		AudioRecording recordingObject = new AudioRecording(null, null, null, null, null, null);
-		
-		recordingObject.setAudioFilePath(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDINGPATH)));
-		recordingObject.setName(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NAME)));
-		recordingObject.setDate(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_DATE)));
-		recordingObject.setSubject(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_SUBJECT)));
-		Log.d("NAME", recordingObject.getName());
-		Log.d("DATE", recordingObject.getDate());
-		Log.d("FILEPATH", recordingObject.getAudioFilePath());
-		Log.d("SUBJECT", recordingObject.getSubject());
-		
-//		recordingObject.setSubject(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.));
-//		recordingObject.setNotes(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDING));
-		
-		
 		if (recordingFrag != null) {
 			// In large-layout
 			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> large-layout");
 			
 			// Call a method in the ArticleFragment to update its content
-            recordingFrag.updateRecordingInformationView(position, recordingObject);
+            recordingFrag.updateRecordingInformationView(position);
 
 		} else {
 			// In normal layout
@@ -142,7 +124,6 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 
 			// Pass position in list and recording object to the fragment
 			args.putInt(RecordingInformationFragment.POSITION, position);
-			args.putSerializable(MainActivity.RECORDING, recordingObject);
 			newFragment.setArguments(args);
 			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -157,6 +138,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	
 	@Override
 	public void onRecordingSelected(int position) {
+		Log.d("RECORDINGS LIST", "onRecordingSelected() --> osition = " + Integer.toString(position));
 		displayRecordingInformation(position);
 	}
 

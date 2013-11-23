@@ -26,7 +26,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 	public static final String KEY_ROWID = "_id";
 	
 	//Database creation sql statement
-	private static final String DATABASE_CREATE ="create table recordings (_id integer primary key autoincrement, name text not null, date text not null, length text not null, subject text not null, recording text not null);";
+	private static final String DATABASE_CREATE ="create table recordings (_id integer primary key autoincrement, name text not null, date text not null, length text not null, subject text, recording text not null, notes text);";
 	private static final String DATABASE_NAME = "voice_recorder_db";
 	private static final String DATABASE_TABLE = "recordings";
 	private static final int DATABASE_VERSION = 2;
@@ -91,7 +91,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 		initialValues.put(KEY_LENGTH, recording.getDuration());
 		initialValues.put(KEY_RECORDINGPATH, recording.getAudioFilePath());
 		initialValues.put(KEY_SUBJECT, recording.getSubject());
-		Log.d("LALA", recording.getSubject());
+		
 		return database.insert(DATABASE_TABLE, null, initialValues);
 	}
 	
@@ -118,7 +118,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 	
 	/** Queries the database and retrieves all entries in the database table **/
 	public Cursor fetchAllRecordings() {		
-        return database.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_NAME, KEY_DATE, KEY_LENGTH, KEY_RECORDINGPATH, KEY_SUBJECT}, null, null, null, null, null, null);
+        return database.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_NAME, KEY_DATE, KEY_LENGTH, KEY_RECORDINGPATH, KEY_SUBJECT, KEY_NOTES}, null, null, null, null, null, null);
     }
 	
 	
@@ -126,7 +126,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 	 * 
 	 * @param: rowID - the position of the element in the ListView **/
 	public Cursor fetchRecording(long rowId) throws SQLException {
-        Cursor cursor = database.query(true, DATABASE_TABLE, new String[] {KEY_ROWID, KEY_NAME, KEY_DATE, KEY_LENGTH, KEY_RECORDINGPATH}, KEY_ROWID + "=" + rowId, null, null, null, null, null);
+        Cursor cursor = database.query(true, DATABASE_TABLE, new String[] {KEY_ROWID, KEY_NAME, KEY_DATE, KEY_LENGTH, KEY_RECORDINGPATH, KEY_SUBJECT, KEY_NOTES}, KEY_ROWID + "=" + rowId, null, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -136,15 +136,18 @@ public class RecordingsListAdapter extends BaseAdapter {
 	
 	/** Updates a recording based on the information passed to the function. **/
     public boolean updateRecording(long rowId, AudioRecording recording) {
+    	Cursor c = fetchAllRecordings();
+		c.moveToPosition((int) rowId);
+		
         ContentValues args = new ContentValues();
         args.put(KEY_NAME, recording.getName());
         args.put(KEY_DATE, recording.getDate());
         args.put(KEY_LENGTH, recording.getDuration());
         args.put(KEY_RECORDINGPATH, recording.getAudioFilePath());
         args.put(KEY_SUBJECT, recording.getSubject());
-        //TODO: Don't use rowId
+        args.put(KEY_NOTES,  recording.getNotes());
 
-        return database.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
+        return database.update(DATABASE_TABLE, args, KEY_ROWID + "=" + c.getInt(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_ROWID)), null) > 0;
     }
 	
     
