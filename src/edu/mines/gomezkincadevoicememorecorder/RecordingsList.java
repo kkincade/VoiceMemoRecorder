@@ -1,15 +1,10 @@
 package edu.mines.gomezkincadevoicememorecorder;
 
-import java.io.File;
-import java.io.IOException;
-import android.widget.Button;
 import android.database.Cursor;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.View;
@@ -18,16 +13,12 @@ import android.view.WindowManager;
 
 public class RecordingsList extends FragmentActivity implements RecordingListFragment.OnRecordingSelectedListener {
 	private AudioRecording recording;
-	private String currentAudioFilePath;
-	private MediaPlayer player;
 	private RecordingsListAdapter databaseHelper;
 	private Cursor recordingsCursor;
 	private SimpleCursorAdapter adapter;
-	private Button playButton;
-	private Button pauseButton;
-	private Button stopButton;
-	private boolean playbackIsPaused = false;
 	private RecordingListFragment listFragment;
+	private RecordingInformationFragment recordingInfoFragLarge;
+	private RecordingInformationFragment recordingInfoFragSmall;
 	private FragmentManager fragmentManager;
 
 
@@ -39,13 +30,9 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
 		this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); // Hide keyboard initially
 		setContentView(R.layout.recordings_container);
-
-		player = new MediaPlayer();
-		playButton = (Button) findViewById(R.id.play_button);
-		pauseButton = (Button) findViewById(R.id.pause_button);
-		stopButton = (Button) findViewById(R.id.stop_button);
 		recording = (AudioRecording) getIntent().getSerializableExtra(MainActivity.RECORDING);
 		fragmentManager = (FragmentManager) this.getSupportFragmentManager();
+		recordingInfoFragLarge = (RecordingInformationFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
 		databaseHelper = new RecordingsListAdapter(this);
 		databaseHelper.open();
 
@@ -71,8 +58,8 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			firstFragment.setArguments(getIntent().getExtras());
 
 			// Add the fragment to the 'fragment_container' FrameLayout
-			getSupportFragmentManager().beginTransaction()
-			.add(R.id.fragment_container, firstFragment).commit();
+			getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
+			
 		// Large layout
 		} else {
 			listFragment = (RecordingListFragment) fragmentManager.findFragmentById(R.id.recording_list_fragment);
@@ -103,33 +90,31 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 
 
 	public void displayRecordingInformation(int position) {
-		Log.d("RECORDINGS LIST", "displayRecordingInformation()...");
 		// Capture the article fragment from the activity layout
-		RecordingInformationFragment recordingInfoFrag = (RecordingInformationFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
-	
-		if (recordingInfoFrag != null) {
+		if (recordingInfoFragLarge != null) {
 			// In large-layout
 			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> large-layout");
-			recordingInfoFrag.setPosition(position);
+			recordingInfoFragLarge.setPosition(position);
 			// Call a method in the ArticleFragment to update its content
-			databaseHelper.updateRecording(position,recordingInfoFrag.getRecordingFromDatabase(position));
-            recordingInfoFrag.updateRecordingInformationView(position);
+			databaseHelper.updateRecording(position,recordingInfoFragLarge.getRecordingFromDatabase(position));
+			recordingInfoFragLarge.updateRecordingInformationView(position);
+//			((BaseAdapter) listFragment.getListAdapter()).notifyDataSetChanged();
 		} else {
 			// In normal layout
 			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> normal-layout");
 
 			// Create fragment and give it an argument for the selected article
-			RecordingInformationFragment newFragment = new RecordingInformationFragment();
+			recordingInfoFragSmall = new RecordingInformationFragment();
 			Bundle args = new Bundle();
 
 			// Pass position in list and recording object to the fragment
 			args.putInt(RecordingInformationFragment.POSITION, position);
-			newFragment.setArguments(args);
+			recordingInfoFragSmall.setArguments(args);
 			FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
 			// Replace whatever is in the fragment_container view with this fragment,
 			// and add the transaction to the back stack so the user can navigate back
-			transaction.replace(R.id.fragment_container, newFragment);
+			transaction.replace(R.id.fragment_container, recordingInfoFragSmall);
 			transaction.addToBackStack(null);
 			transaction.commit();	
 		}
@@ -140,74 +125,31 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		Log.d("RECORDINGS LIST", "onRecordingSelected() --> osition = " + Integer.toString(position));
 		displayRecordingInformation(position);
 	}
-
-
-	/**------------------------------------------ PLAYBACK FUNCTIONS --------------------------------------------**/
-
-	/** Plays back the currentAudioFilePath if the recording exists and the player is not already currently playing **/
-	public void startPlayback( View v ) {
-		setContentView(R.layout.recording_information);
-		Log.d("RECORDINGS LIST", "startPlayback() --> " + currentAudioFilePath);
-
-		if (!player.isPlaying()) {
-			if (playbackIsPaused) {
-				// Just resume playback
-				player.start();
-				playbackIsPaused = false;
-			} else {
-				// Start audio from beginning
-				player.reset();
-				File audioFile = new File (currentAudioFilePath);
-				if (audioFile.exists()) {
-					try {
-						player.setDataSource(currentAudioFilePath);
-						player.prepare();
-						player.start();
-					} catch (IOException e) {
-						Log.e("AUDIO PLAYER", "prepare() failed");
-					}
-				}
-			}
-
-			// Enable pause and stop buttons and disable play button
-			pauseButton.setEnabled(true);
-			stopButton.setEnabled(true);
-			playButton.setEnabled(false);
+	
+	public void startPlayback(View v) {
+		Log.d("RECORDINGS LIST", "startPlayback()");
+		if (recordingInfoFragLarge != null) {
+			recordingInfoFragLarge.startPlayback(v);
+		} else {
+			recordingInfoFragSmall.startPlayback(v);
 		}
 	}
-
-
-	/** If MediaPlayer is playing audio, this PAUSES playback **/
-	public void pausePlayback( View v ) {
+	
+	public void pausePlayback(View v) {
 		Log.d("RECORDINGS LIST", "pausePlayback()");
-		setContentView(R.layout.recording_information);
-		if (player != null) {
-			if (player.isPlaying()) {
-				player.pause();
-				playbackIsPaused = true;
-				playButton.setEnabled(true);
-				pauseButton.setEnabled(false);
-				stopButton.setEnabled(false);
-			}
+		if (recordingInfoFragLarge != null) {
+			recordingInfoFragLarge.pausePlayback(v);
+		} else {
+			recordingInfoFragSmall.pausePlayback(v);
 		}
 	}
-
-
-	/** If MediaPlayer is playing audio, this STOPS playback and releases the MediaPlayer object **/
-	public void stopPlayback( View v ) {
+	
+	public void stopPlayback(View v) {
 		Log.d("RECORDINGS LIST", "stopPlayback()");
-		setContentView(R.layout.recording_information);
-		if (player != null) {
-			if (player.isPlaying()) {
-				player.stop();
-				player.release();
-				player = null;
-
-				//Enable play button and disable pause and stop
-				playButton.setEnabled(true);
-				pauseButton.setEnabled(false);
-				stopButton.setEnabled(false);
-			}
+		if (recordingInfoFragLarge != null) {
+			recordingInfoFragLarge.stopPlayback(v);
+		} else {
+			recordingInfoFragSmall.stopPlayback(v);
 		}
 	}
 
@@ -235,9 +177,9 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	protected void onPause() {
 		super.onPause(); // Must do this or app will crash!
 		Log.d( "RECORDINGS LIST", "onPause()..." );
-
-		// Pause playback if app is paused.
-		pausePlayback(null);
+//
+//		// Pause playback if app is paused.
+//		pausePlayback(null);
 	}
 
 	@Override
@@ -246,7 +188,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		Log.d( "RECORDINGS LIST", "onStop()..." );
 
 		// Stop playback if app is stopped.
-		stopPlayback(null);
+//		stopPlayback(null);
 	}
 
 	@Override

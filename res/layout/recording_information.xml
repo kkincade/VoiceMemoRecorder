@@ -64,7 +64,6 @@
         android:inputType="textMultiLine"
         android:lines="8"
         android:gravity="left">
-        <requestFocus />
     </EditText>
     
 	<LinearLayout
