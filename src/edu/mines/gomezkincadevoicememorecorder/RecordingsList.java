@@ -95,8 +95,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			// In large-layout
 			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> large-layout");
 			recordingInfoFragLarge.setPosition(position);
-			// Call a method in the ArticleFragment to update its content
-			databaseHelper.updateRecording(position,recordingInfoFragLarge.getRecordingFromDatabase(position));
+			recordingInfoFragLarge.clearAllFocus();
 			recordingInfoFragLarge.updateRecordingInformationView(position);
 //			((BaseAdapter) listFragment.getListAdapter()).notifyDataSetChanged();
 		} else {

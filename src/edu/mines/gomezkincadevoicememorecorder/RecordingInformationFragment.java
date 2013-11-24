@@ -146,6 +146,12 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		return recordingObject;
 	}
 	
+	public void clearAllFocus() {
+		recordingNameEditText.clearFocus();
+		recordingSubjectEditText.clearFocus();
+		recordingNotesEditText.clearFocus();
+	}
+	
 	/**------------------------------------------ PLAYBACK FUNCTIONS --------------------------------------------**/
 
 	/** Plays back the currentAudioFilePath if the recording exists and the player is not already currently playing **/
