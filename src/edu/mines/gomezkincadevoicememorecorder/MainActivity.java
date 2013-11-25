@@ -71,7 +71,6 @@ import android.widget.ToggleButton;
  **/
 
 public class MainActivity extends Activity {
-
 	public final static String RECORDING = "recording";
 	public final static String DEFAULT_NAME = "default_name";
 	public final static int DEFAULT = 1;
@@ -102,7 +101,7 @@ public class MainActivity extends Activity {
 		subjectEditText = (EditText) findViewById(R.id.subject_edit_text);
 		chronometer = (Chronometer) findViewById(R.id.chronometer); // TODO: Format this later
 		recordButton = (ToggleButton) findViewById(R.id.record_button);
-
+		
 		View mainView = findViewById(android.R.id.content);
 		final Intent recordingListIntent = new Intent(this, RecordingsList.class);
 
@@ -110,6 +109,17 @@ public class MainActivity extends Activity {
 		sharedPreferences = getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
 		numberOfSavedRecordings = sharedPreferences.getInt("number_of_saved_recordings", -1);
 
+		// Check if defaultName exists in preferences. If so, use it. If not, set to default.
+		String defaultName = (sharedPreferences.getString(MainActivity.DEFAULT_NAME, ""));
+		Log.d("DEFAULT NAME - defaultName", defaultName);
+		if (defaultName.equals("")) {
+			String temp = this.getString(R.string.untitled);
+			SharedPreferences.Editor editor = sharedPreferences.edit();
+			editor.putString(DEFAULT_NAME, temp);
+			editor.commit();
+			Log.d("DEFAULT NAME - TEMP", temp);
+		}
+		
 		// Uses an on swipe listener
 		mainView.setOnTouchListener(new OnSwipeTouchListener() {
 			public void onSwipeLeft() {
@@ -121,7 +131,6 @@ public class MainActivity extends Activity {
 	
 	/**onCreateOptions method finds the XML actionbar file in menu and inflates it. It then sets the action items
 	 * on the action bar on top of the screen **/
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -130,7 +139,6 @@ public class MainActivity extends Activity {
 	}
 	
 	/**onOptionsItemSelected method distinguishes which icon was clicked and does the appropriate thing **/
-	
 	@Override
 	  public boolean onOptionsItemSelected(MenuItem item) {
 		final Intent recordingListIntent1 = new Intent(this, RecordingsList.class);
@@ -191,7 +199,6 @@ public class MainActivity extends Activity {
 				SharedPreferences.Editor editor = sharedPreferences.edit();
 				editor.putString(DEFAULT_NAME, temp);
 				editor.commit();
-				
 			}
 		}
 	}
@@ -291,7 +298,6 @@ public class MainActivity extends Activity {
 		chronometer.setBase(SystemClock.elapsedRealtime());
 
 		// Save the number of recordings currently in database (used for uniquely naming the audio file paths)
-		sharedPreferences = getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putInt("number_of_saved_recordings", numberOfSavedRecordings);
 		editor.commit();
