@@ -1,8 +1,10 @@
 package edu.mines.gomezkincadevoicememorecorder;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -25,6 +27,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	private RecordingInformationFragment recordingInfoFragLarge;
 	private RecordingInformationFragment recordingInfoFragSmall;
 	private FragmentManager fragmentManager;
+	private SharedPreferences sharedPreferences;
 
 
 	/** Initializes the layout, grabs the recording object passed from MainActivity, creates a ListView, and then sets the adapter. **/ 
@@ -40,7 +43,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		recordingInfoFragLarge = (RecordingInformationFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
 		databaseHelper = new RecordingsListAdapter(this);
 		databaseHelper.open();
-
+		sharedPreferences = getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
 		// Create recording if the user recorded audio in MainActivity. Will be null if they used swipe gesture to access the ListView
 		if (recording.getAudioFilePath() != null) {
 			databaseHelper.createRecording(recording);	
@@ -113,9 +116,9 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 				}})
 				.setNegativeButton(android.R.string.no, null).show();
 			break;
-			
+
 		case R.id.action_help:
-	    	new AlertDialog.Builder(this)
+			new AlertDialog.Builder(this)
 			.setTitle(R.string.help_action)
 			.setMessage(R.string.help_message_2)
 			.setIcon(android.R.drawable.ic_dialog_alert)
@@ -127,7 +130,10 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 					}
 				}})
 				.setNegativeButton(android.R.string.no, null).show();
-	      break;
+			break;
+		case R.id.action_settings:
+			Intent i = new Intent(this, SettingsDialog.class);
+			startActivityForResult(i, MainActivity.DEFAULT);
 
 		default:
 			break;
@@ -136,6 +142,19 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		return true;
 	} 
 
+
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {     
+		super.onActivityResult(requestCode, resultCode, data); 
+		if (resultCode == Activity.RESULT_OK) { 
+			if (requestCode == MainActivity.DEFAULT) {
+				String temp = data.getExtras().getString(SettingsDialog.DEFAULTNAME);
+				SharedPreferences.Editor editor = sharedPreferences.edit();
+				editor.putString(MainActivity.DEFAULT_NAME, temp);
+				editor.commit();
+
+			}
+		}
+	}
 
 	/** fillData() iterates over every row in the database table and creates a row in the ListView with the corresponding
 	 * values substituted in. We understand that startManagingCursor() is deprecated and we plan to look into an alternative

@@ -86,7 +86,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 		SharedPreferences shared = context.getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
 		String defaultName = (shared.getString(MainActivity.DEFAULT_NAME, ""));
 		if (recording.getName().equals("")) {
-			if (defaultName != "") 
+			if (!defaultName.equals("")) 
 				initialValues.put(KEY_NAME, defaultName);
 			else 
 				initialValues.put(KEY_NAME, context.getString(R.string.untitled));
