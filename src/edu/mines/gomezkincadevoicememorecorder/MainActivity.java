@@ -16,6 +16,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -202,6 +203,7 @@ public class MainActivity extends Activity {
 				}
 
 				// Start recorder and chronometer
+				setRequestedOrientation(this.getResources().getConfiguration().orientation);
 				recorder.start();
 				chronometer.start();
 
@@ -216,15 +218,17 @@ public class MainActivity extends Activity {
 
 	/** Stops the recorder and the chronometer **/
 	public void stopRecording() {
+		// Stop chronometer
+		chronometer.stop();
+		recordingDuration = (SystemClock.elapsedRealtime() - chronometer.getBase())/1000.0;
+		
 		Log.d("VOICE MEMO RECORDER", "Stop Recording");
 		// Stop recording
 		recorder.stop();
 		recorder.release();
 		recorder = null;
-
-		// Stop chronometer
-		chronometer.stop();
-		recordingDuration = (SystemClock.elapsedRealtime() - chronometer.getBase())/1000.0;
+	
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 	}
 
 

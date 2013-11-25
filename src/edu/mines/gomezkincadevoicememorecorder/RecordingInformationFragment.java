@@ -2,7 +2,6 @@ package edu.mines.gomezkincadevoicememorecorder;
 
 import java.io.File;
 import java.io.IOException;
-
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class RecordingInformationFragment extends Fragment implements TextWatcher {
 	final static String POSITION = "position";
@@ -23,12 +23,11 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 	private RecordingsListAdapter databaseHelper;
 	private CustomTextWatcher textWatcher;
 	private Cursor c;
-	private int position = 0;
+	private int position;
 	
 	private EditText recordingNameEditText;
 	private EditText recordingSubjectEditText;
 	private EditText recordingNotesEditText;
-	
 	private Button playButton;
 	private Button pauseButton;
 	private Button stopButton;
@@ -48,8 +47,6 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		super.onStart();
 		databaseHelper = new RecordingsListAdapter(this.getActivity());
 		databaseHelper.open();
-		
-		textWatcher = new CustomTextWatcher();
 		
 		if (!playbackIsPaused) {
 			player = new MediaPlayer();
@@ -75,6 +72,7 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		recordingSubjectEditText = (EditText) getActivity().findViewById(R.id.recording_subject_edit_text);
 		recordingNotesEditText = (EditText) getActivity().findViewById(R.id.recording_notes_edit_text);
 		
+		textWatcher = new CustomTextWatcher();
 		recordingNameEditText.addTextChangedListener(textWatcher);
 		recordingSubjectEditText.addTextChangedListener(textWatcher);
 		recordingNotesEditText.addTextChangedListener(textWatcher);
@@ -93,12 +91,11 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 	public void updateRecordingInformationView(int position) {
 		Log.d("RECORDING INFO FRAGMENT", "updateRecordingInformationView()");
 		recording = getRecordingFromDatabase(position);
-		Log.d("_____NAME_______", "+" + recording.getName() + "+");
-		Log.d("_____SUBJECT_______", "+" + recording.getSubject() + "+");
-		Log.d("_____NOTES_______", "+" + recording.getNotes() + "+");
-		recordingNameEditText.setText(recording.getName());
-		recordingSubjectEditText.setText(recording.getSubject());
-		recordingNotesEditText.setText(recording.getNotes());
+		if (recording != null) {
+			recordingNameEditText.setText(recording.getName());
+			recordingSubjectEditText.setText(recording.getSubject());
+			recordingNotesEditText.setText(recording.getNotes());
+		}
 	}
 	
 	public void setRecordingInformation(Boolean setAll) {
@@ -109,6 +106,7 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 			if (id == recordingNameEditText.getId()) {
 				Log.d("UPDATE", "NAME");
 				recording.setName(recordingNameEditText.getText().toString());
+				updateListItemName();
 			} else if (id == recordingSubjectEditText.getId()) {
 				Log.d("UPDATE", "SUBJECT");
 				recording.setSubject(recordingSubjectEditText.getText().toString());
@@ -126,62 +124,80 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 	}
 	
 	public void setPosition(int positionArg) {
+		Log.d("RECORDING INFO FRAGMENT", "setPosition()");
 		this.position = positionArg;
 	}
 	
 	public AudioRecording getRecordingFromDatabase(int position) {
 		Log.d("RECORDING INFO FRAGMENT", "getRecordingFromDatabase()");
 		c = databaseHelper.fetchAllRecordings();
-		c.moveToPosition(position);
-		AudioRecording recordingObject = new AudioRecording(null, null, null, null, null, null);
+		if (c.getCount() >= 1) {
+			c.moveToPosition(position);
+			AudioRecording recordingObject = new AudioRecording(null, null, null, null, null, null);
+			
+			recordingObject.setAudioFilePath(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDINGPATH)));
+			recordingObject.setName(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NAME)));
+			recordingObject.setDate(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_DATE)));
+			recordingObject.setSubject(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_SUBJECT)));
+			recordingObject.setNotes(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NOTES)));
+			recordingObject.setDuration(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_LENGTH)));
+			return recordingObject;
+		} else {
+			recordingNameEditText.setVisibility(View.GONE);
+			recordingSubjectEditText.setVisibility(View.GONE);
+			recordingNotesEditText.setVisibility(View.GONE);
+		}
 		
-		recordingObject.setAudioFilePath(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_RECORDINGPATH)));
-		recordingObject.setName(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NAME)));
-		recordingObject.setDate(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_DATE)));
-		recordingObject.setSubject(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_SUBJECT)));
-		recordingObject.setNotes(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NOTES)));
-		recordingObject.setDuration(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_LENGTH)));
-
-		return recordingObject;
+		return null;
 	}
 	
 	public void clearAllFocus() {
+		Log.d("RECORDING INFO FRAGMENT", "clearAllFocus()");
 		recordingNameEditText.clearFocus();
 		recordingSubjectEditText.clearFocus();
 		recordingNotesEditText.clearFocus();
+	}
+	
+	public void updateListItemName() {
+		Log.d("RECORDING INFO FRAGMENT", "updateListItemName()");
+		RecordingListFragment recordingListFrag = (RecordingListFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.recording_list_fragment);;
+		TextView nameLabel = (TextView) recordingListFrag.getListView().getChildAt(position).findViewById(R.id.recording_name);
+		nameLabel.setText(recording.getName());
 	}
 	
 	/**------------------------------------------ PLAYBACK FUNCTIONS --------------------------------------------**/
 
 	/** Plays back the currentAudioFilePath if the recording exists and the player is not already currently playing **/
 	public void startPlayback( View v ) {
-		String currentAudioFilePath = recording.getAudioFilePath();
-		Log.d("RECORDING INFO FRAGMENT", "startPlayback() --> " + currentAudioFilePath);
-
-		if (!player.isPlaying()) {
-			if (playbackIsPaused) {
-				// Just resume playback
-				player.start();
-				playbackIsPaused = false;
-			} else {
-				// Start audio from beginning
-				player.reset();
-				File audioFile = new File (currentAudioFilePath);
-				if (audioFile.exists()) {
-					try {
-						player.setDataSource(currentAudioFilePath);
-						player.prepare();
-						player.start();
-					} catch (IOException e) {
-						Log.e("AUDIO PLAYER", "prepare() failed");
+		if (recording != null) {		
+			String currentAudioFilePath = recording.getAudioFilePath();
+			Log.d("RECORDING INFO FRAGMENT", "startPlayback() --> " + currentAudioFilePath);
+	
+			if (!player.isPlaying()) {
+				if (playbackIsPaused) {
+					// Just resume playback
+					player.start();
+					playbackIsPaused = false;
+				} else {
+					// Start audio from beginning
+					player.reset();
+					File audioFile = new File (currentAudioFilePath);
+					if (audioFile.exists()) {
+						try {
+							player.setDataSource(currentAudioFilePath);
+							player.prepare();
+							player.start();
+						} catch (IOException e) {
+							Log.e("AUDIO PLAYER", "prepare() failed");
+						}
 					}
 				}
+	
+				// Enable pause and stop buttons and disable play button
+				pauseButton.setEnabled(true);
+				stopButton.setEnabled(true);
+				playButton.setEnabled(false);
 			}
-
-			// Enable pause and stop buttons and disable play button
-			pauseButton.setEnabled(true);
-			stopButton.setEnabled(true);
-			playButton.setEnabled(false);
 		}
 	}
 
@@ -235,15 +251,17 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 	public void onResume() {
 		Log.d("RECORDING INFO FRAGMENT", "onResume()");
 		super.onResume();
-		updateRecordingInformationView(position);
 	}
 	
 	@Override
 	public void onPause() {
 		Log.d("RECORDING INFO FRAGMENT", "onPause()");
 		super.onPause();
-		setRecordingInformation(true);
-		databaseHelper.updateRecording(position, recording);
+		c = databaseHelper.fetchAllRecordings();
+		if (c.getCount() >= 1) {
+			setRecordingInformation(true);
+			databaseHelper.updateRecording(position, recording);
+		}
 		pausePlayback(null);
 	}
 	
@@ -270,6 +288,10 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		@Override
 		public void afterTextChanged(Editable editable) {
 			Log.d("RECORDING INFO FRAGMENT", "afterTextChanged --> " + Integer.toString(position));
+			c = databaseHelper.fetchAllRecordings();
+			if (c.getCount() < 1) {
+				return;
+			}
 			setRecordingInformation(false);
 			databaseHelper.updateRecording(position, recording);
 			Log.d("UPDATE", "DATABASE");
@@ -282,5 +304,3 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		
 	}
 }
-
-
