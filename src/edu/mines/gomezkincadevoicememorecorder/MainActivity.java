@@ -73,6 +73,8 @@ import android.widget.ToggleButton;
 public class MainActivity extends Activity {
 
 	public final static String RECORDING = "recording";
+	public final static String DEFAULT_NAME = "default_name";
+	public final static int DEFAULT = 1;
 	private String originalAudioFilePath = null;
 	private double recordingDuration = 0;
 	private int numberOfSavedRecordings = 0;
@@ -170,7 +172,8 @@ public class MainActivity extends Activity {
 	      break;
 	      
 	    case R.id.action_settings:
-	    	
+	    	Intent i = new Intent(this, SettingsDialog.class);
+			startActivityForResult(i, DEFAULT);
 	    	
 	    default:
 	      break;
@@ -178,6 +181,20 @@ public class MainActivity extends Activity {
 
 	    return true;
 	  } 
+	
+	
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {     
+		super.onActivityResult(requestCode, resultCode, data); 
+		if (resultCode == Activity.RESULT_OK) { 
+			if (requestCode == DEFAULT) {
+				String temp = data.getExtras().getString(SettingsDialog.DEFAULTNAME);
+				SharedPreferences.Editor editor = sharedPreferences.edit();
+				editor.putString(DEFAULT_NAME, temp);
+				editor.commit();
+				
+			}
+		}
+	}
 
 	/** Record/Pause button is a toggle button. This method first determines whether "record" or "stop" was clicked. 
 	 * Record: Initializes the MediaRecorder object, starts the chronometer, and starts recording audio.

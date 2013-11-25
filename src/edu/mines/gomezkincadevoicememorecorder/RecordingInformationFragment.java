@@ -86,6 +86,7 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 			// Set article based on argument passed in
 			position = args.getInt(POSITION);
 		}
+		updateRecordingInformationView(position);
 	}
 
 	public void updateRecordingInformationView(int position) {
@@ -161,8 +162,10 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 	public void updateListItemName() {
 		Log.d("RECORDING INFO FRAGMENT", "updateListItemName()");
 		RecordingListFragment recordingListFrag = (RecordingListFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.recording_list_fragment);;
-		TextView nameLabel = (TextView) recordingListFrag.getListView().getChildAt(position).findViewById(R.id.recording_name);
-		nameLabel.setText(recording.getName());
+		//if(recordingListFrag != null) { 
+			TextView nameLabel = (TextView) recordingListFrag.getListView().getChildAt(position).findViewById(R.id.recording_name);
+			nameLabel.setText(recording.getName());
+		//}
 	}
 	
 	/**------------------------------------------ PLAYBACK FUNCTIONS --------------------------------------------**/

@@ -32,6 +32,10 @@
             android:name="edu.mines.gomezkincadevoicememorecorder.RecordingListAdapter"
             android:label="@string/title_activity_recording_list_adapter" >
         </activity>
+        <activity
+            android:name="edu.mines.gomezkincadevoicememorecorder.SettingsDialog"
+            android:theme="@android:style/Theme.Dialog" >
+        </activity>
     </application>
 
 </manifest>

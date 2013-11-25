@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_home"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@drawable/home"
+        android:title="@string/home_action"/>
+    <item
+        android:id="@+id/action_list"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@drawable/list"
+        android:title="@string/list_action"/>
+     <item
+    	android:id="@+id/action_about"
+        android:title="@string/about_action"/>
+    <item
+    	android:id="@+id/action_help"
+        android:title="@string/help_action"/>
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/setting_action">
+    </item>
+
+</menu> 

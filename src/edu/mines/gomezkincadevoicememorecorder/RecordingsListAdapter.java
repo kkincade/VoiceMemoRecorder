@@ -2,8 +2,10 @@ package edu.mines.gomezkincadevoicememorecorder;
 
 import java.io.File;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -81,9 +83,13 @@ public class RecordingsListAdapter extends BaseAdapter {
 	/** Create a new list row using the info from the recording object. Returns -1 if failure happens, else returns the row ID for that recording. **/
 	public long createRecording(AudioRecording recording) {
 		ContentValues initialValues = new ContentValues();
-
+		SharedPreferences shared = context.getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
+		String defaultName = (shared.getString(MainActivity.DEFAULT_NAME, ""));
 		if (recording.getName().equals("")) {
-			initialValues.put(KEY_NAME, context.getString(R.string.untitled));
+			if (defaultName != "") 
+				initialValues.put(KEY_NAME, defaultName);
+			else 
+				initialValues.put(KEY_NAME, context.getString(R.string.untitled));
 		} else {
 			initialValues.put(KEY_NAME, recording.getName());
 		}
