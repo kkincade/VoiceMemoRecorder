@@ -97,7 +97,8 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			recordingInfoFragLarge.setPosition(position);
 			recordingInfoFragLarge.clearAllFocus();
 			recordingInfoFragLarge.updateRecordingInformationView(position);
-//			((BaseAdapter) listFragment.getListAdapter()).notifyDataSetChanged();
+			fillData();
+			listFragment.setListAdapter(adapter);
 		} else {
 			// In normal layout
 			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> normal-layout");
@@ -176,18 +177,12 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	protected void onPause() {
 		super.onPause(); // Must do this or app will crash!
 		Log.d( "RECORDINGS LIST", "onPause()..." );
-//
-//		// Pause playback if app is paused.
-//		pausePlayback(null);
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop(); // Must do this or app will crash!
 		Log.d( "RECORDINGS LIST", "onStop()..." );
-
-		// Stop playback if app is stopped.
-//		stopPlayback(null);
 	}
 
 	@Override
