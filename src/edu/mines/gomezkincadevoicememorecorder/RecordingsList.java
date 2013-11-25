@@ -1,5 +1,8 @@
 package edu.mines.gomezkincadevoicememorecorder;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -7,8 +10,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 
 public class RecordingsList extends FragmentActivity implements RecordingListFragment.OnRecordingSelectedListener {
@@ -27,7 +32,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.d("RECORDINGS LIST", "onCreate()");
 		super.onCreate(savedInstanceState);
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
+		//this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
 		this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); // Hide keyboard initially
 		setContentView(R.layout.recordings_container);
 		recording = (AudioRecording) getIntent().getSerializableExtra(MainActivity.RECORDING);
@@ -42,7 +47,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		}
 
 		fillData();
-		
+
 		// Small layout
 		if (findViewById(R.id.fragment_container) != null) {
 			// However, if we're being restored from a previous state, then we don't need to do anything and should return or else
@@ -53,19 +58,84 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			// Create an instance of ExampleFragment
 			RecordingListFragment firstFragment = new RecordingListFragment();
 			firstFragment.setListAdapter(adapter);
-			
+
 			// In case this activity was started with special instructions from an Intent, pass the Intent's extras to the fragment as arguments
 			firstFragment.setArguments(getIntent().getExtras());
 
 			// Add the fragment to the 'fragment_container' FrameLayout
 			getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
-			
-		// Large layout
+
+			// Large layout
 		} else {
 			listFragment = (RecordingListFragment) fragmentManager.findFragmentById(R.id.recording_list_fragment);
 			listFragment.setListAdapter(adapter);
 		}
 	}
+
+
+	/**onCreateOptions method finds the XML actionbar file in menu and inflates it. It then sets the action items
+	 * on the action bar on top of the screen **/
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.action_bar, menu);
+		return true;
+	} 
+
+	/**onOptionsItemSelected method distinguishes which icon was clicked and does the appropriate thing **/
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		final Intent recordingListIntent1 = new Intent(this, RecordingsList.class);
+		final Intent mainRecordingActivity = new Intent(this, MainActivity.class);
+		switch (item.getItemId()) {
+		case R.id.action_home:
+			startActivityForResult(mainRecordingActivity, 100);
+			break;
+		case R.id.action_list:
+			recordingListIntent1.putExtra(MainActivity.RECORDING, new AudioRecording(null, null, null, null, null, null));
+			startActivityForResult(recordingListIntent1, 100);
+
+			break;
+
+		case R.id.action_about:
+			new AlertDialog.Builder(this)
+			.setTitle(R.string.about_action)
+			.setMessage(R.string.about_message)
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					// Okay button clicked
+					if (whichButton == -1) {
+						return;
+					}
+				}})
+				.setNegativeButton(android.R.string.no, null).show();
+			break;
+			
+		case R.id.action_help:
+	    	new AlertDialog.Builder(this)
+			.setTitle(R.string.help_action)
+			.setMessage(R.string.help_message_2)
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					// Okay button clicked
+					if (whichButton == -1) {
+						return;
+					}
+				}})
+				.setNegativeButton(android.R.string.no, null).show();
+	      break;
+
+		default:
+			break;
+		}
+
+		return true;
+	} 
+
 
 	/** fillData() iterates over every row in the database table and creates a row in the ListView with the corresponding
 	 * values substituted in. We understand that startManagingCursor() is deprecated and we plan to look into an alternative
@@ -97,7 +167,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			recordingInfoFragLarge.setPosition(position);
 			recordingInfoFragLarge.clearAllFocus();
 			recordingInfoFragLarge.updateRecordingInformationView(position);
-//			((BaseAdapter) listFragment.getListAdapter()).notifyDataSetChanged();
+			//			((BaseAdapter) listFragment.getListAdapter()).notifyDataSetChanged();
 		} else {
 			// In normal layout
 			Log.d("RECORDINGS LIST", "displayRecordingInformation() --> normal-layout");
@@ -118,13 +188,13 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			transaction.commit();	
 		}
 	}
-	
+
 	@Override
 	public void onRecordingSelected(int position) {
 		Log.d("RECORDINGS LIST", "onRecordingSelected() --> osition = " + Integer.toString(position));
 		displayRecordingInformation(position);
 	}
-	
+
 	public void startPlayback(View v) {
 		Log.d("RECORDINGS LIST", "startPlayback()");
 		if (recordingInfoFragLarge != null) {
@@ -133,7 +203,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			recordingInfoFragSmall.startPlayback(v);
 		}
 	}
-	
+
 	public void pausePlayback(View v) {
 		Log.d("RECORDINGS LIST", "pausePlayback()");
 		if (recordingInfoFragLarge != null) {
@@ -142,7 +212,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			recordingInfoFragSmall.pausePlayback(v);
 		}
 	}
-	
+
 	public void stopPlayback(View v) {
 		Log.d("RECORDINGS LIST", "stopPlayback()");
 		if (recordingInfoFragLarge != null) {
@@ -176,9 +246,9 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	protected void onPause() {
 		super.onPause(); // Must do this or app will crash!
 		Log.d( "RECORDINGS LIST", "onPause()..." );
-//
-//		// Pause playback if app is paused.
-//		pausePlayback(null);
+		//
+		//		// Pause playback if app is paused.
+		//		pausePlayback(null);
 	}
 
 	@Override
@@ -187,7 +257,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		Log.d( "RECORDINGS LIST", "onStop()..." );
 
 		// Stop playback if app is stopped.
-//		stopPlayback(null);
+		//		stopPlayback(null);
 	}
 
 	@Override

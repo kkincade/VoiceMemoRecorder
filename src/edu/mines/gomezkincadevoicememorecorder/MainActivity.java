@@ -12,11 +12,15 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.EditText;
@@ -86,7 +90,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
+		//this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
 		this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); // Hide keyboard initially
 		setContentView(R.layout.activity_main);
 
@@ -95,23 +99,84 @@ public class MainActivity extends Activity {
 		subjectEditText = (EditText) findViewById(R.id.subject_edit_text);
 		chronometer = (Chronometer) findViewById(R.id.chronometer); // TODO: Format this later
 		recordButton = (ToggleButton) findViewById(R.id.record_button);
-		
+
 		View mainView = findViewById(android.R.id.content);
 		final Intent recordingListIntent = new Intent(this, RecordingsList.class);
-		
+
 		// Load number of recordings (used for uniquely naming audio file paths) from shared preferences
 		sharedPreferences = getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
 		numberOfSavedRecordings = sharedPreferences.getInt("number_of_saved_recordings", -1);
 
 		// Uses an on swipe listener
 		mainView.setOnTouchListener(new OnSwipeTouchListener() {
-		    public void onSwipeLeft() {
-		        recordingListIntent.putExtra(RECORDING, new AudioRecording(null, null, null, null, null, null));
+			public void onSwipeLeft() {
+				recordingListIntent.putExtra(RECORDING, new AudioRecording(null, null, null, null, null, null));
 				startActivityForResult(recordingListIntent, 100);
-		    }
+			}
 		});
 	}
+	
+	/**onCreateOptions method finds the XML actionbar file in menu and inflates it. It then sets the action items
+	 * on the action bar on top of the screen **/
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.action_bar, menu);
+		return true;
+	}
+	
+	/**onOptionsItemSelected method distinguishes which icon was clicked and does the appropriate thing **/
+	
+	@Override
+	  public boolean onOptionsItemSelected(MenuItem item) {
+		final Intent recordingListIntent1 = new Intent(this, RecordingsList.class);
+	    switch (item.getItemId()) {
+	    case R.id.action_home:
+	      break;
+	    case R.id.action_list:
+	    	recordingListIntent1.putExtra(RECORDING, new AudioRecording(null, null, null, null, null, null));
+			startActivityForResult(recordingListIntent1, 100);
+	      break;
+	      
+	    case R.id.action_about:
+	    	new AlertDialog.Builder(this)
+			.setTitle(R.string.about_action)
+			.setMessage(R.string.about_message)
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					// Okay button clicked
+					if (whichButton == -1) {
+						return;
+					}
+				}})
+				.setNegativeButton(android.R.string.no, null).show();
+	      break;
+	    case R.id.action_help:
+	    	new AlertDialog.Builder(this)
+			.setTitle(R.string.help_action)
+			.setMessage(R.string.help_message_1)
+			.setIcon(android.R.drawable.ic_dialog_alert)
+			.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					// Okay button clicked
+					if (whichButton == -1) {
+						return;
+					}
+				}})
+				.setNegativeButton(android.R.string.no, null).show();
+	      break;
+	      
+	    case R.id.action_settings:
+	    	
+	    	
+	    default:
+	      break;
+	    }
 
+	    return true;
+	  } 
 
 	/** Record/Pause button is a toggle button. This method first determines whether "record" or "stop" was clicked. 
 	 * Record: Initializes the MediaRecorder object, starts the chronometer, and starts recording audio.
@@ -135,12 +200,12 @@ public class MainActivity extends Activity {
 					Log.d("MEDIA RECORDER", "prepare() failed");
 					return;
 				}
-				
+
 				// Start recorder and chronometer
 				recorder.start();
 				chronometer.start();
 
-			// Stop
+				// Stop
 			} else {
 				stopRecording();
 				saveRecording();
@@ -148,7 +213,7 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	
+
 	/** Stops the recorder and the chronometer **/
 	public void stopRecording() {
 		Log.d("VOICE MEMO RECORDER", "Stop Recording");
@@ -162,7 +227,7 @@ public class MainActivity extends Activity {
 		recordingDuration = (SystemClock.elapsedRealtime() - chronometer.getBase())/1000.0;
 	}
 
-	
+
 	/** Copies the audio file to a unique name so it won't get overridden.
 	 * Then calls pushRecordingToList(), passing it the path to the audio file it just created. **/
 	public void saveRecording() {
@@ -193,17 +258,17 @@ public class MainActivity extends Activity {
 	public void pushRecordingToList(String audioFilePath) {
 		// Get current date
 		String date = formatDate();
-		
+
 		// Create new AudioRecording object and add it to the ArrayList
 		AudioRecording recording = new AudioRecording(audioFilePath, nameEditText.getText().toString(), subjectEditText.getText().toString(), "", date, Double.toString(recordingDuration));
 
 		// Reset MainActivity for a fresh recording
 		nameEditText.setText("");
 		subjectEditText.setText("");
-		
+
 		// Reset the chronometer
 		chronometer.setBase(SystemClock.elapsedRealtime());
-		
+
 		// Save the number of recordings currently in database (used for uniquely naming the audio file paths)
 		sharedPreferences = getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPreferences.edit();

@@ -19,7 +19,17 @@
     <string name="date">Date</string>
     <string name="duration">Duration</string>
     <string name="notes_hint">Notes&#8230;</string>
-
+    <string name="home_action">Home</string>
+    <string name="list_action">List</string>
+    <string name="setting_action">Settings</string>
+    <string name="help_action">Help</string>
+    <string name="about_action">About</string>
+    <string name="about_message">This app written by Gonzalo Gomez, Israel Gomez, and Kameron Kincade all of whom are students in Computer
+	    Science at the Colorado School of Mines. This app was written to facilitate students in their rigorous college careers.</string>
+    <string name="help_message_1">There are two text fields where you can name your recording and specify the subject of your recording. 
+        Click the record button to begin recording and click it again to save the recording. 
+        You will be redirected to a screen of your saved recordings. </string>
+    <string name="help_message_2">Click on a recording to edit the name and subject as well as add notes. Click the play the button to playback your recording.</string>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="gray">#555555</color>

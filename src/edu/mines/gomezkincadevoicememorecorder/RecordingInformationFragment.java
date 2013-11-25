@@ -142,7 +142,6 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		recordingObject.setNotes(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_NOTES)));
 		recordingObject.setDuration(c.getString(c.getColumnIndexOrThrow(RecordingsListAdapter.KEY_LENGTH)));
 
-		Log.d("OBJECT", recordingObject.getNotes());
 		return recordingObject;
 	}
 	
