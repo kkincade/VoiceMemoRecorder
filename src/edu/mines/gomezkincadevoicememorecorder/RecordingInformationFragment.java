@@ -124,6 +124,7 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 	}
 	
 	public void setPosition(int positionArg) {
+		Log.d("RECORDING INFO FRAGMENT", "setPosition()");
 		this.position = positionArg;
 	}
 	
@@ -151,16 +152,19 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 	}
 	
 	public void clearAllFocus() {
+		Log.d("RECORDING INFO FRAGMENT", "clearAllFocus()");
 		recordingNameEditText.clearFocus();
 		recordingSubjectEditText.clearFocus();
 		recordingNotesEditText.clearFocus();
 	}
 	
 	public void updateListItemName() {
+		Log.d("RECORDING INFO FRAGMENT", "updateListItemName()");
 		RecordingListFragment recordingListFrag = (RecordingListFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.recording_list_fragment);;
 		TextView nameLabel = (TextView) recordingListFrag.getListView().getChildAt(position).findViewById(R.id.recording_name);
 		nameLabel.setText(recording.getName());
 	}
+	
 	/**------------------------------------------ PLAYBACK FUNCTIONS --------------------------------------------**/
 
 	/** Plays back the currentAudioFilePath if the recording exists and the player is not already currently playing **/
@@ -247,7 +251,6 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 	public void onResume() {
 		Log.d("RECORDING INFO FRAGMENT", "onResume()");
 		super.onResume();
-//		updateRecordingInformationView(position);
 	}
 	
 	@Override
@@ -301,5 +304,3 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		
 	}
 }
-
-
