@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/action_home"
+        android:id="@+id/action_mute"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:icon="@drawable/home"
-        android:title="@string/home_action"/>
+        android:icon="@drawable/play"
+        android:title="@string/mute_action"/>
      <item
     	android:id="@+id/action_about"
         android:title="@string/about_action"/>

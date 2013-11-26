@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -17,11 +19,13 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 public class RecordingsList extends FragmentActivity implements RecordingListFragment.OnRecordingSelectedListener {
 	private AudioRecording recording;
@@ -33,7 +37,10 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	private RecordingInformationFragment recordingInfoFragSmall;
 	private FragmentManager fragmentManager;
 	private SharedPreferences sharedPreferences;
-
+	private Drawable muteIcon;
+	private Drawable playIcon;
+	private AudioManager audioManager;
+	private int volumeLevel;
 
 	/** Initializes the layout, grabs the recording object passed from MainActivity, creates a ListView, and then sets the adapter. **/ 
 	@Override
@@ -48,8 +55,12 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		recordingInfoFragLarge = (RecordingInformationFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
 		databaseHelper = new RecordingsListAdapter(this);
 		databaseHelper.open();
-		
+		muteIcon = getResources().getDrawable(R.drawable.mute);
+		playIcon = getResources().getDrawable(R.drawable.play);
+		audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+		volumeLevel = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 		sharedPreferences = getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
+		
 		// Create recording if the user recorded audio in MainActivity. Will be null if they used swipe gesture to access the ListView
 		if (recording.getAudioFilePath() != null) {
 			databaseHelper.createRecording(recording);	
@@ -87,9 +98,17 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		Log.d("RECORDINGS LIST", "onCreateOptionsMenu()");
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.action_bar, menu);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+
+		volumeLevel = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+		if (volumeLevel == 0) {
+			menu.findItem(R.id.action_mute).setIcon(muteIcon);
+		} else {
+			menu.findItem(R.id.action_mute).setIcon(playIcon);
+		}
 		return true;
 	} 
 
@@ -99,11 +118,22 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	@SuppressLint("NewApi")
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		final Intent mainRecordingActivity = new Intent(this, MainActivity.class);
 		switch (item.getItemId()) {
-		case R.id.action_home:
-			finish();
-			startActivityForResult(mainRecordingActivity, 100);
+		case R.id.action_mute:
+			volumeLevel = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+			if (volumeLevel != 0) {
+				audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+				item.setIcon(muteIcon);
+				Toast muteToast = Toast.makeText(getApplicationContext(), getString(R.string.mute_message), Toast.LENGTH_SHORT);
+				muteToast.setGravity(Gravity.CENTER, 0, 0);
+				muteToast.show();
+			} else {
+			 	audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 5, 0);
+				item.setIcon(playIcon);
+				Toast muteToast = Toast.makeText(getApplicationContext(), getString(R.string.play_message), Toast.LENGTH_SHORT);
+				muteToast.setGravity(Gravity.CENTER, 0, 0);
+				muteToast.show();
+			}
 			break;
 		case R.id.action_about:
 			new AlertDialog.Builder(this)
@@ -136,25 +166,24 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			break;
 		case R.id.action_settings:
 			Intent i = new Intent(this, SettingsDialog.class);
-			finish();
 			startActivityForResult(i, MainActivity.DEFAULT);
-			
+			break;
 		case android.R.id.home:
-	        Intent upIntent = NavUtils.getParentActivityIntent(this);
-	        if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
-	            // This activity is NOT part of this app's task, so create a new task
-	            // when navigating up, with a synthesized back stack.
-	            TaskStackBuilder.create(this)
-	                    // Add all of this activity's parents to the back stack
-	                    .addNextIntentWithParentStack(upIntent)
-	                    // Navigate up to the closest parent
-	                    .startActivities();
-	        } else {
-	            // This activity is part of this app's task, so simply
-	            // navigate up to the logical parent activity.
-	            NavUtils.navigateUpTo(this, upIntent);
-	        }
-	        return true;
+			Intent upIntent = NavUtils.getParentActivityIntent(this);
+			if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+				// This activity is NOT part of this app's task, so create a new task
+				// when navigating up, with a synthesized back stack.
+				TaskStackBuilder.create(this)
+				// Add all of this activity's parents to the back stack
+				.addNextIntentWithParentStack(upIntent)
+				// Navigate up to the closest parent
+				.startActivities();
+			} else {
+				// This activity is part of this app's task, so simply
+				// navigate up to the logical parent activity.
+				NavUtils.navigateUpTo(this, upIntent);
+			}
+			return true;
 
 		default:
 			break;

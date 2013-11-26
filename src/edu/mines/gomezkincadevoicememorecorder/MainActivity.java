@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+
+import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,7 +19,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,6 +29,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 /**
@@ -84,14 +90,18 @@ public class MainActivity extends Activity {
 	private Chronometer chronometer;
 	private ToggleButton recordButton;
 	private SharedPreferences sharedPreferences;
-
+	private Drawable muteIcon;
+	private Drawable playIcon;
+	private AudioManager audioManager;
+	private int volumeLevel;
+	
+	
 	/** In onCreate(), the application checks our shared preferences for an integer used to 
 	 * uniquely name our audio files. It also instantiates the application's widgets, 
 	 * variables, and an OnSwipeTouchListener for navigating to the RecordingsList activity. **/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		//this.requestWindowFeature(Window.FEATURE_NO_TITLE); // Hide title bar
 		this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); // Hide keyboard initially
 		setContentView(R.layout.activity_main);
 
@@ -100,7 +110,10 @@ public class MainActivity extends Activity {
 		subjectEditText = (EditText) findViewById(R.id.subject_edit_text);
 		chronometer = (Chronometer) findViewById(R.id.chronometer); // TODO: Format this later
 		recordButton = (ToggleButton) findViewById(R.id.record_button);
-		
+		muteIcon = getResources().getDrawable(R.drawable.mute);
+		playIcon = getResources().getDrawable(R.drawable.play);
+		audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+		volumeLevel = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 		View mainView = findViewById(android.R.id.content);
 		final Intent recordingListIntent = new Intent(this, RecordingsList.class);
 
@@ -118,7 +131,7 @@ public class MainActivity extends Activity {
 			editor.commit();
 			Log.d("DEFAULT NAME - TEMP", temp);
 		}
-		
+
 		// Uses an on swipe listener
 		mainView.setOnTouchListener(new OnSwipeTouchListener() {
 			public void onSwipeLeft() {
@@ -127,24 +140,59 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
-	
+
 	/**onCreateOptions method finds the XML actionbar file in menu and inflates it. It then sets the action items
 	 * on the action bar on top of the screen **/
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		Log.d("VOICE RECORDER", "onCreateOptionsMenu()");
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.action_bar, menu);
+		
+		volumeLevel = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+		if (volumeLevel == 0) {
+			menu.findItem(R.id.action_mute).setIcon(muteIcon);
+		} else {
+			menu.findItem(R.id.action_mute).setIcon(playIcon);
+		}
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		Log.d("VOICE RECORDER", "onPrepareOptionsMenu");
+		volumeLevel = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+		if (volumeLevel == 0) {
+			menu.findItem(R.id.action_mute).setIcon(muteIcon);
+		} else {
+			menu.findItem(R.id.action_mute).setIcon(playIcon);
+		}
 		return true;
 	}
 	
 	/**onOptionsItemSelected method distinguishes which icon was clicked and does the appropriate thing **/
 	@Override
-	  public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
-	    case R.id.action_home:
-	      break;
-	    case R.id.action_about:
-	    	new AlertDialog.Builder(this)
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Log.d("VOICE RECORDER", "onOptionsItemSelected()");
+		switch (item.getItemId()) {
+		case R.id.action_mute:
+			volumeLevel = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+			if (volumeLevel != 0) {
+				audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+				item.setIcon(muteIcon);
+				Toast muteToast = Toast.makeText(getApplicationContext(), getString(R.string.mute_message), Toast.LENGTH_SHORT);
+				muteToast.setGravity(Gravity.CENTER, 0, 0);
+				muteToast.show();
+			} else {
+				audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 5, 0);
+				item.setIcon(playIcon);
+				Toast muteToast = Toast.makeText(getApplicationContext(), getString(R.string.play_message), Toast.LENGTH_SHORT);
+				muteToast.setGravity(Gravity.CENTER, 0, 0);
+				muteToast.show();
+			}
+			break;
+		case R.id.action_about:
+			new AlertDialog.Builder(this)
 			.setTitle(R.string.about_action)
 			.setMessage(R.string.about_message)
 			.setIcon(android.R.drawable.ic_dialog_alert)
@@ -156,9 +204,9 @@ public class MainActivity extends Activity {
 					}
 				}})
 				.setNegativeButton(android.R.string.no, null).show();
-	      break;
-	    case R.id.action_help:
-	    	new AlertDialog.Builder(this)
+			break;
+		case R.id.action_help:
+			new AlertDialog.Builder(this)
 			.setTitle(R.string.help_action)
 			.setMessage(R.string.help_message_1)
 			.setIcon(android.R.drawable.ic_dialog_alert)
@@ -170,19 +218,19 @@ public class MainActivity extends Activity {
 					}
 				}})
 				.setNegativeButton(android.R.string.no, null).show();
-	      break;
-	      
-	    case R.id.action_settings:
-	    	Intent i = new Intent(this, SettingsDialog.class);
-			startActivityForResult(i, DEFAULT);
-	    default:
-	      break;
-	    }
+			break;
 
-	    return true;
-	  } 
-	
-	
+		case R.id.action_settings:
+			Intent i = new Intent(this, SettingsDialog.class);
+			startActivityForResult(i, DEFAULT);
+		default:
+			break;
+		}
+
+		return true;
+	} 
+
+
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {     
 		super.onActivityResult(requestCode, resultCode, data); 
 		if (resultCode == Activity.RESULT_OK) { 
@@ -236,7 +284,7 @@ public class MainActivity extends Activity {
 		// Stop chronometer
 		chronometer.stop();
 		recordingDuration = (SystemClock.elapsedRealtime() - chronometer.getBase())/1000.0;
-		
+
 		Log.d("VOICE MEMO RECORDER", "Stop Recording");
 		// Stop recording
 		recorder.stop();
@@ -275,9 +323,12 @@ public class MainActivity extends Activity {
 	public void pushRecordingToList(String audioFilePath) {
 		// Get current date
 		String date = formatDate();
-
+		DecimalFormat df = new DecimalFormat("#.#");
+		String durationString = df.format(recordingDuration);
+		durationString += getString(R.string.s);
+		Log.d("DURATION", durationString);
 		// Create new AudioRecording object and add it to the ArrayList
-		AudioRecording recording = new AudioRecording(audioFilePath, nameEditText.getText().toString(), subjectEditText.getText().toString(), "", date, Double.toString(recordingDuration));
+		AudioRecording recording = new AudioRecording(audioFilePath, nameEditText.getText().toString(), subjectEditText.getText().toString(), "", date, durationString);
 
 		// Reset MainActivity for a fresh recording
 		nameEditText.setText("");
@@ -347,6 +398,7 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		super.onResume(); // Must do this or app will crash!
 		Log.d( "VOICE RECORDER", "onResume()..." );
+		invalidateOptionsMenu();
 	}
 
 	@Override

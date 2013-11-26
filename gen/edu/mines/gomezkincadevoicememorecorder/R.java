@@ -32,11 +32,13 @@ public final class R {
         public static final int ic_launcher=0x7f020001;
         public static final int list=0x7f020002;
         public static final int microphone=0x7f020003;
+        public static final int mute=0x7f020004;
+        public static final int play=0x7f020005;
     }
     public static final class id {
         public static final int action_about=0x7f09001e;
         public static final int action_help=0x7f09001f;
-        public static final int action_home=0x7f09001d;
+        public static final int action_mute=0x7f09001d;
         public static final int action_settings=0x7f090020;
         public static final int button1=0x7f09000a;
         public static final int chronometer=0x7f090006;
@@ -91,26 +93,28 @@ public final class R {
         public static final int confirm=0x7f05000d;
         public static final int date=0x7f05000f;
         public static final int duration=0x7f050010;
-        public static final int hello_world=0x7f05001c;
         public static final int help_action=0x7f050015;
         public static final int help_message_1=0x7f050018;
         public static final int help_message_2=0x7f050019;
-        public static final int home_action=0x7f050012;
         public static final int list_action=0x7f050013;
+        public static final int mute_action=0x7f050012;
+        public static final int mute_message=0x7f05001b;
         public static final int name_hint=0x7f05000a;
         public static final int name_label=0x7f050008;
         public static final int no_recordings=0x7f05000c;
         public static final int notes_hint=0x7f050011;
         public static final int pause=0x7f050003;
         public static final int play=0x7f050007;
+        public static final int play_message=0x7f05001c;
         public static final int record=0x7f050002;
+        public static final int s=0x7f05001d;
         public static final int save=0x7f050006;
         public static final int setting_action=0x7f050014;
         public static final int settings_messag=0x7f05001a;
         public static final int stop=0x7f050005;
         public static final int subject_hint=0x7f05000b;
         public static final int subject_label=0x7f050009;
-        public static final int title_activity_recording_list_adapter=0x7f05001b;
+        public static final int title_activity_recording_list_adapter=0x7f05001e;
         public static final int untitled=0x7f05000e;
     }
     public static final class style {
