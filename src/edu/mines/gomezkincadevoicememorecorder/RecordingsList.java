@@ -1,15 +1,20 @@
 package edu.mines.gomezkincadevoicememorecorder;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.Menu;
@@ -83,25 +88,22 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.action_bar, menu);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
 		return true;
 	} 
 
 	/**onOptionsItemSelected method distinguishes which icon was clicked and does the appropriate thing **/
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+	@SuppressLint("NewApi")
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		final Intent recordingListIntent1 = new Intent(this, RecordingsList.class);
 		final Intent mainRecordingActivity = new Intent(this, MainActivity.class);
 		switch (item.getItemId()) {
 		case R.id.action_home:
+			finish();
 			startActivityForResult(mainRecordingActivity, 100);
 			break;
-		case R.id.action_list:
-			recordingListIntent1.putExtra(MainActivity.RECORDING, new AudioRecording(null, null, null, null, null, null));
-			startActivityForResult(recordingListIntent1, 100);
-
-			break;
-
 		case R.id.action_about:
 			new AlertDialog.Builder(this)
 			.setTitle(R.string.about_action)
@@ -133,7 +135,25 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 			break;
 		case R.id.action_settings:
 			Intent i = new Intent(this, SettingsDialog.class);
+			finish();
 			startActivityForResult(i, MainActivity.DEFAULT);
+			
+		case android.R.id.home:
+	        Intent upIntent = NavUtils.getParentActivityIntent(this);
+	        if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+	            // This activity is NOT part of this app's task, so create a new task
+	            // when navigating up, with a synthesized back stack.
+	            TaskStackBuilder.create(this)
+	                    // Add all of this activity's parents to the back stack
+	                    .addNextIntentWithParentStack(upIntent)
+	                    // Navigate up to the closest parent
+	                    .startActivities();
+	        } else {
+	            // This activity is part of this app's task, so simply
+	            // navigate up to the logical parent activity.
+	            NavUtils.navigateUpTo(this, upIntent);
+	        }
+	        return true;
 
 		default:
 			break;

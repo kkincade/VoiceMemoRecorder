@@ -133,15 +133,9 @@ public class MainActivity extends Activity {
 	
 	@Override
 	  public boolean onOptionsItemSelected(MenuItem item) {
-		final Intent recordingListIntent1 = new Intent(this, RecordingsList.class);
 	    switch (item.getItemId()) {
 	    case R.id.action_home:
 	      break;
-	    case R.id.action_list:
-	    	recordingListIntent1.putExtra(RECORDING, new AudioRecording(null, null, null, null, null, null));
-			startActivityForResult(recordingListIntent1, 100);
-	      break;
-	      
 	    case R.id.action_about:
 	    	new AlertDialog.Builder(this)
 			.setTitle(R.string.about_action)
@@ -173,8 +167,8 @@ public class MainActivity extends Activity {
 	      
 	    case R.id.action_settings:
 	    	Intent i = new Intent(this, SettingsDialog.class);
+	    	finish();
 			startActivityForResult(i, DEFAULT);
-	    	
 	    default:
 	      break;
 	    }

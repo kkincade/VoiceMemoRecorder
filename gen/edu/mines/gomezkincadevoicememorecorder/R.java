@@ -34,11 +34,10 @@ public final class R {
         public static final int microphone=0x7f020003;
     }
     public static final class id {
-        public static final int action_about=0x7f09001f;
-        public static final int action_help=0x7f090020;
+        public static final int action_about=0x7f09001e;
+        public static final int action_help=0x7f09001f;
         public static final int action_home=0x7f09001d;
-        public static final int action_list=0x7f09001e;
-        public static final int action_settings=0x7f090021;
+        public static final int action_settings=0x7f090020;
         public static final int button1=0x7f09000a;
         public static final int chronometer=0x7f090006;
         public static final int edit_name_layout=0x7f090000;

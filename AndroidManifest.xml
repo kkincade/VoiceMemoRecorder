@@ -27,6 +27,9 @@
             </intent-filter>
         </activity>
         <activity android:name="edu.mines.gomezkincadevoicememorecorder.RecordingsList" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.mines.gomezkincadevoicememorecorder.MainActivity" />
         </activity>
         <activity
             android:name="edu.mines.gomezkincadevoicememorecorder.RecordingListAdapter"
