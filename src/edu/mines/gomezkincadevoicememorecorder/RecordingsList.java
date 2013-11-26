@@ -48,6 +48,7 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		recordingInfoFragLarge = (RecordingInformationFragment) getSupportFragmentManager().findFragmentById(R.id.recording_information_fragment);
 		databaseHelper = new RecordingsListAdapter(this);
 		databaseHelper.open();
+		
 		sharedPreferences = getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
 		// Create recording if the user recorded audio in MainActivity. Will be null if they used swipe gesture to access the ListView
 		if (recording.getAudioFilePath() != null) {
@@ -171,7 +172,6 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 				SharedPreferences.Editor editor = sharedPreferences.edit();
 				editor.putString(MainActivity.DEFAULT_NAME, temp);
 				editor.commit();
-
 			}
 		}
 	}
@@ -238,27 +238,30 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 	public void startPlayback(View v) {
 		Log.d("RECORDINGS LIST", "startPlayback()");
 		if (recordingInfoFragLarge != null) {
-			recordingInfoFragLarge.startPlayback(v);
+			recordingInfoFragLarge.startPlayback();
 		} else {
-			recordingInfoFragSmall.startPlayback(v);
+			if (recordingInfoFragSmall == null) {
+				Log.d("NULL", "THIS IS STUPID");
+			}
+			recordingInfoFragSmall.startPlayback();
 		}
 	}
 
 	public void pausePlayback(View v) {
 		Log.d("RECORDINGS LIST", "pausePlayback()");
 		if (recordingInfoFragLarge != null) {
-			recordingInfoFragLarge.pausePlayback(v);
+			recordingInfoFragLarge.pausePlayback();
 		} else {
-			recordingInfoFragSmall.pausePlayback(v);
+			recordingInfoFragSmall.pausePlayback();
 		}
 	}
 
 	public void stopPlayback(View v) {
 		Log.d("RECORDINGS LIST", "stopPlayback()");
 		if (recordingInfoFragLarge != null) {
-			recordingInfoFragLarge.stopPlayback(v);
+			recordingInfoFragLarge.stopPlayback();
 		} else {
-			recordingInfoFragSmall.stopPlayback(v);
+			recordingInfoFragSmall.stopPlayback();
 		}
 	}
 

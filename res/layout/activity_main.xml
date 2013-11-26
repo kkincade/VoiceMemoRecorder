@@ -34,7 +34,9 @@
             android:inputType="text"
             android:textColor="@color/white"
             android:textColorHint="@color/gray"
-            android:textSize="16sp" />
+            android:textSize="16sp" 
+            android:maxLength="25"
+            android:singleLine="true"/>
     </LinearLayout>
 
     <LinearLayout
@@ -51,7 +53,7 @@
             android:layout_weight="1"
             android:text="@string/subject_label"
             android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:textSize="16sp"/>
 
         <EditText
             android:id="@+id/subject_edit_text"
@@ -63,8 +65,9 @@
             android:inputType="text"
             android:textColor="@color/white"
             android:textColorHint="@color/gray"
-            android:textSize="16sp" >
-        </EditText>
+            android:textSize="16sp"
+            android:maxLength="25"
+            android:singleLine="true"/>
     </LinearLayout>
 
     <Chronometer

@@ -25,7 +25,9 @@
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:layout_weight="1"
-            android:ems="10" />
+            android:ems="10" 
+            android:maxLength="25"
+            android:singleLine="true"/>
 
     </LinearLayout>
 
@@ -48,7 +50,9 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:layout_weight="1" >
+            android:layout_weight="1"
+            android:maxLength="25"
+            android:singleLine="true" >
         </EditText>
 
     </LinearLayout>

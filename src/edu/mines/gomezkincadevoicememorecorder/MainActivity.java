@@ -16,7 +16,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -175,7 +174,6 @@ public class MainActivity extends Activity {
 	      
 	    case R.id.action_settings:
 	    	Intent i = new Intent(this, SettingsDialog.class);
-	    	finish();
 			startActivityForResult(i, DEFAULT);
 	    default:
 	      break;
@@ -221,7 +219,6 @@ public class MainActivity extends Activity {
 				}
 
 				// Start recorder and chronometer
-				setRequestedOrientation(this.getResources().getConfiguration().orientation);
 				recorder.start();
 				chronometer.start();
 
@@ -245,8 +242,6 @@ public class MainActivity extends Activity {
 		recorder.stop();
 		recorder.release();
 		recorder = null;
-	
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 	}
 
 
