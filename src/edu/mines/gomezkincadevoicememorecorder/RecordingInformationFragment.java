@@ -26,77 +26,20 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 	private CustomTextWatcher textWatcher;
 	private Cursor c;
 	private int position;
+	private MediaPlayer player;
+	private boolean playbackIsPaused = false;
+	private SharedPreferences sharedPreferences;
 
+	// Widgets
 	private EditText recordingNameEditText;
 	private EditText recordingSubjectEditText;
 	private EditText recordingNotesEditText;
 	private Button playButton;
 	private Button pauseButton;
 	private Button stopButton;
-	private MediaPlayer player;
-	private boolean playbackIsPaused = false;
-	private SharedPreferences sharedPreferences;
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		Log.d("RECORDING INFO FRAGMENT", "onCreateView()");
-		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.recording_information, container, false);
-	}
-
-
-	@Override
-	public void onStart() {
-		Log.d("RECORDING INFO FRAGMENT", "onStart()");
-		super.onStart();
-		databaseHelper = new RecordingsListAdapter(this.getActivity());
-		databaseHelper.open();
-		sharedPreferences = this.getActivity().getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
-
-		if (!playbackIsPaused) {
-			player = new MediaPlayer();
-		}
-
-		// Listener for when playback finishes
-		player.setOnCompletionListener(new OnCompletionListener(){ 
-			@Override
-			public void onCompletion(MediaPlayer mp) {
-				Log.d("RECORDING INFO FRAGMENT", "onCompletion()");
-				mp.reset();
-				playButton.setEnabled(true);
-				pauseButton.setEnabled(false);
-				stopButton.setEnabled(false);
-			}
-		});
-
-		playButton = (Button) getActivity().findViewById(R.id.play_button);
-		pauseButton = (Button) getActivity().findViewById(R.id.pause_button);
-		stopButton = (Button) getActivity().findViewById(R.id.stop_button);
-		
-		pauseButton.setEnabled(false);
-		stopButton.setEnabled(false);
-
-		recordingNameEditText = (EditText) getActivity().findViewById(R.id.recording_name_edit_text);
-		recordingSubjectEditText = (EditText) getActivity().findViewById(R.id.recording_subject_edit_text);
-		recordingNotesEditText = (EditText) getActivity().findViewById(R.id.recording_notes_edit_text);
-
-		textWatcher = new CustomTextWatcher();
-		recordingNameEditText.addTextChangedListener(textWatcher);
-		recordingSubjectEditText.addTextChangedListener(textWatcher);
-		recordingNotesEditText.addTextChangedListener(textWatcher);
-
-		// During startup, check if there are arguments passed to the fragment.
-		// onStart is a good place to do this because the layout has already been
-		// applied to the fragment at this point so we can safely call the method
-		// below that sets the article text.
-		Bundle args = getArguments();
-		if (args != null) {
-			// Set article based on argument passed in
-			position = args.getInt(POSITION);
-		}
-		updateRecordingInformationView(position);
-	}
-
+	/** updateRecordingInformation() gets the recording object from the database and updates the widgets in the fragment.
+	 * @param - position (the position of the selected item in the list view) **/
 	public void updateRecordingInformationView(int position) {
 		Log.d("RECORDING INFO FRAGMENT", "updateRecordingInformationView()");
 		recording = getRecordingFromDatabase(position);
@@ -107,6 +50,10 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		}
 	}
 
+	
+	/** setRecordingInformation() checks which EditText is being edited and updates that information in the database
+	 * 
+	 * @param - setAll (if set to true, this updates the database with info from all three EditText's) **/
 	public void setRecordingInformation(Boolean setAll) {
 		Log.d("RECORDING INFO FRAGMENT", "setRecordingInformation()");
 		// Get the id of the EditText currently in focus
@@ -132,12 +79,17 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 			recording.setNotes(recordingNotesEditText.getText().toString());
 		}
 	}
+	
 
+	/** setPosition() sets the position.... @param - positionArg (the position you want to set it to) **/ 
 	public void setPosition(int positionArg) {
 		Log.d("RECORDING INFO FRAGMENT", "setPosition()");
 		this.position = positionArg;
 	}
 
+	
+	/** Helper method to get recording object from database 
+	 * @param - position (the position corresponding to the recording object) **/
 	public AudioRecording getRecordingFromDatabase(int position) {
 		Log.d("RECORDING INFO FRAGMENT", "getRecordingFromDatabase()");
 		c = databaseHelper.fetchAllRecordings();
@@ -160,6 +112,8 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		return null;
 	}
 
+	
+	/** Clears the focus of the EditTexts **/
 	public void clearAllFocus() {
 		Log.d("RECORDING INFO FRAGMENT", "clearAllFocus()");
 		recordingNameEditText.clearFocus();
@@ -167,6 +121,9 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		recordingNotesEditText.clearFocus();
 	}
 
+	
+	/** This grabs the correct row in the list view and updates the name of the recording. This is used in the 
+	 * tablet view to update the recording name in real time when changed from the RecordingInformationFragment. **/
 	public void updateListItemName() {
 		Log.d("RECORDING INFO FRAGMENT", "updateListItemName()");
 		RecordingListFragment recordingListFrag = (RecordingListFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.recording_list_fragment);;
@@ -176,9 +133,10 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		}
 	}
 
+	
 	/**------------------------------------------ PLAYBACK FUNCTIONS --------------------------------------------**/
 
-	/** Plays back the currentAudioFilePath if the recording exists and the player is not already currently playing **/
+	/** Plays back the current audio file if the recording exists and the player is not already currently playing **/
 	public void startPlayback() {
 		if (recording != null) {		
 			String currentAudioFilePath = recording.getAudioFilePath();
@@ -212,7 +170,7 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		}
 	}
 
-
+	
 	/** If MediaPlayer is playing audio, this PAUSES playback **/
 	public void pausePlayback() {
 		Log.d("RECORDING INFO FRAGMENT", "pausePlayback()");
@@ -229,7 +187,7 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		}
 	}
 
-
+	
 	/** If MediaPlayer is playing audio, this STOPS playback and releases the MediaPlayer object **/
 	public void stopPlayback() {
 		Log.d("RECORDING INFO FRAGMENT", "stopPlayback()");
@@ -250,6 +208,70 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		}
 	}
 
+	
+	/** ------------------------------ OVERRIDEN METHODS ------------------------------ **/
+	
+	/** onCreateView() inflates the recording information fragment. **/
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		Log.d("RECORDING INFO FRAGMENT", "onCreateView()");
+		// Inflate the layout for this fragment
+		return inflater.inflate(R.layout.recording_information, container, false);
+	}
+	
+
+	/** onStart() sets variables and contains an OnCompletionListener for when an audio recording finishes playback.
+	 * It also grabs the widgets from the XML and then updates the information by calling updateRecordingInformationView **/
+	@Override
+	public void onStart() {
+		Log.d("RECORDING INFO FRAGMENT", "onStart()");
+		super.onStart();
+		databaseHelper = new RecordingsListAdapter(this.getActivity());
+		databaseHelper.open();
+		sharedPreferences = this.getActivity().getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
+
+		if (!playbackIsPaused) {
+			player = new MediaPlayer();
+		}
+
+		// Listener for when playback finishes
+		player.setOnCompletionListener(new OnCompletionListener(){ 
+			@Override
+			public void onCompletion(MediaPlayer mp) {
+				Log.d("RECORDING INFO FRAGMENT", "onCompletion()");
+				mp.reset();
+				playButton.setEnabled(true);
+				pauseButton.setEnabled(false);
+				stopButton.setEnabled(false);
+			}
+		});
+
+		playButton = (Button) getActivity().findViewById(R.id.play_button);
+		pauseButton = (Button) getActivity().findViewById(R.id.pause_button);
+		stopButton = (Button) getActivity().findViewById(R.id.stop_button);
+		recordingNameEditText = (EditText) getActivity().findViewById(R.id.recording_name_edit_text);
+		recordingSubjectEditText = (EditText) getActivity().findViewById(R.id.recording_subject_edit_text);
+		recordingNotesEditText = (EditText) getActivity().findViewById(R.id.recording_notes_edit_text);
+		
+		pauseButton.setEnabled(false);
+		stopButton.setEnabled(false);
+
+		textWatcher = new CustomTextWatcher();
+		recordingNameEditText.addTextChangedListener(textWatcher);
+		recordingSubjectEditText.addTextChangedListener(textWatcher);
+		recordingNotesEditText.addTextChangedListener(textWatcher);
+
+		// During startup, check if there are arguments passed to the fragment onStart is a good place to do this because the 
+		// layout has already been applied to the fragment at this point so we can safely call the method below that sets the article text.
+		Bundle args = getArguments();
+		if (args != null) {
+			// Set article based on argument passed in
+			position = args.getInt(POSITION);
+		}
+		updateRecordingInformationView(position);
+	}
+	
+	
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		Log.d("RECORDING INFO FRAGMENT", "onSaveInstanceState()");
@@ -257,12 +279,14 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		// Save the current article selection in case we need to recreate the fragment
 		outState.putInt(POSITION, position);
 	}
+	
 
 	@Override 
 	public void onResume() {
 		Log.d("RECORDING INFO FRAGMENT", "onResume()");
 		super.onResume();
 	}
+	
 
 	@Override
 	public void onPause() {
@@ -276,6 +300,7 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		pausePlayback();
 	}
 
+	
 	@Override
 	public void onStop() {
 		Log.d("RECORDING INFO FRAGMENT", "onStop()");
@@ -287,7 +312,8 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 	}
 
 
-	/** Text Listener to update database any time the user changes information about the recording **/
+	/** ----------------- Text Listener to update database any time the user changes information about the recording --------------- **/
+	
 	@Override
 	public void afterTextChanged(Editable arg0) {}
 	@Override
@@ -312,7 +338,5 @@ public class RecordingInformationFragment extends Fragment implements TextWatche
 		public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
 	}
-
 }

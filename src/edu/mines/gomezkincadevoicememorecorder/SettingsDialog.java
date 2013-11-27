@@ -16,6 +16,7 @@ public class SettingsDialog extends Activity {
 	private SharedPreferences sharedPreferences;
 	private String defaultName;
 	
+	/** Grabs the default recording name from the shared preferences and loads the view **/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -29,14 +30,15 @@ public class SettingsDialog extends Activity {
 		defaultNameEditText.setText(defaultName);
 	}
 
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.settings_dialog, menu);
-		
 		return true;
 	}
 	
+	/** Callback for confirm button. If default name is an empty string, it wipes the users changes. **/
 	public void onConfirm(View v) {
 		String temp = defaultNameEditText.getText().toString();
 		if (temp.equals("")) {
@@ -47,5 +49,4 @@ public class SettingsDialog extends Activity {
 		data.putExtra(DEFAULTNAME, temp);
 		finish();
 	}
-
 }

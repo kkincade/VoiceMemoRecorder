@@ -18,7 +18,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 public class RecordingsListAdapter extends BaseAdapter {
-	
 	public static final String KEY_NAME = "name";
 	public static final String KEY_DATE = "date";
 	public static final String KEY_LENGTH = "length";
@@ -27,7 +26,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 	public static final String KEY_NOTES = "notes";
 	public static final String KEY_ROWID = "_id";
 	
-	//Database creation sql statement
+	// Database creation sql statement
 	private static final String DATABASE_CREATE ="create table recordings (_id integer primary key autoincrement, name text not null, date text not null, length text not null, subject text, recording text not null, notes text);";
 	private static final String DATABASE_NAME = "voice_recorder_db";
 	private static final String DATABASE_TABLE = "recordings";
@@ -39,7 +38,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 	private final Context context;
 
 	
-	/** DatabaseHelper class. **/
+	/** DatabaseHelper class **/
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 		DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -184,6 +183,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 		return rowView;
 	}
 
+	
 	/** Since we are using a database to store data, these three methods are unused, yet required by the class. They would normally be 
 	 * helper methods to tell the ListView how many rows it needs to inflate, or give it an item or its ID based on its position in the list. **/
 	@Override

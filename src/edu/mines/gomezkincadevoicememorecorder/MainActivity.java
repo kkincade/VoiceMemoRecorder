@@ -8,7 +8,6 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-
 import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -33,12 +32,6 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 /**
- * NOTE: We have run into a problem implementing a custom list adapter while using multiple fragments. We would like to discuss with
- * you the problem and see if we can brainstorm how to fix the issue. The app will crash when you try to access the recordings list
- * because of the way the custom list adapter works with fragments and contains errors as we were trying different implementations
- * and still unable to get it working. The problem is that all the examples set their adapter in fragment that they are launching. 
- * However, we can't do that because our adapter has to be set in an activity in order to pass it the context. We have searched for
- * solutions and tried to figure out a way to incorporate the best of both worlds, but can't seem to figure out a way to do so.
  * 
  * NOTE: This app must be deployed to a device and cannot be run through an emulator. Android emulators do not support
  * the use of the computer's built in microphone and the application will crash when trying to record audio. Any Android
@@ -46,21 +39,27 @@ import android.widget.ToggleButton;
  * 
  * The Voice Memo Recorder app allows you to record audio recordings which are saved to a database built into your 
  * Android device. There are two main screens in the application: the recording screen (MainActivity) and a list of your
- * saved recordings (RecordingList). We realize our app is not the most flashy of apps, but the functionality is solid. 
- * We plan to make it look pretty for App #3.
+ * saved recordings (RecordingsList).
  * 
  * MainActivity allows users to record and stop recording audio. Simply enter a title and subject for your recording and
  * press the record button to begin recording audio. Once a voice recording is stopped, it is passed to RecordingsList 
  * where it is saved to the database and populated in a table view. If you do not wish to record anything but simply view
- * your list of recordings, swipe to the left on the screen (we realize we need some sort of way to display this to the user, 
- * but we ran out of time).
+ * your list of recordings, swipe to the left on the screen.
  * 
- * Once in the list of recordings, tap on a saved recording to enable the play button. You can playback any of the voice memos
- * you have saved in the database. To delete a recording, long press on a ListView item and click "OK". Simply press the back 
- * button to get back to the main recording screen.
+ * Once in the list of recordings, tap on a saved recording to access information regarding the recording. You can play back
+ * any of the voice memos you have saved in the database. To delete a recording, long press on a ListView item and click "OK". 
+ * Simply press the back button to get back to the main recording screen.
  * 
- * Our group ran out of time to implement the ability to add notes or edit any of the information corresponding to a voice memo.
- * We plan to further develop this application, and this will be one of the additions to our App #3.
+ * The options menu presents three options:
+ * 1.) About    - information regarding the developers
+ * 2.) Help     - some tips on how to use the application
+ * 3.) Settings - options to change default text color for list view as well as change the default recording name
+ * 
+ * The action bar also contains a button for muting/unmuting the media volume on the device.
+ * 
+ * As far as back/up functionality, our group decided that the back navigation would be an annoyance to the user. For instance,
+ * in the tablet view, if the user selects a recording and edits it, then selects another recording for editing, our desired 
+ * functionality is still to return to the main recording screen.
  * 
  * POINT DISTRIBUTION: We feel we all contributed equally to the development of the application and would like to each receive
  * a third of the credit.
@@ -71,6 +70,7 @@ import android.widget.ToggleButton;
  * (Copy method)............http://stackoverflow.com/questions/4178168/how-to-programmatically-move-copy-and-delete-files-and-directories-on-sd 
  * (Database)...............http://developer.android.com/training/notepad/index.html
  * (Swipe Gesture)..........http://stackoverflow.com/questions/4139288/android-how-to-handle-right-to-left-swipe-gestures
+ * (Fragments)..............http://developer.android.com/training/basics/fragments/index.html
  * 
  * @authors - Kameron Kincade, Gonzalo Gomez, and Israel Gomez
  **/
@@ -79,26 +79,27 @@ public class MainActivity extends Activity {
 	public final static String RECORDING = "recording";
 	public final static String DEFAULT_NAME = "default_name";
 	public final static int DEFAULT = 1;
+	
 	private String originalAudioFilePath = null;
 	private double recordingDuration = 0;
 	private int numberOfSavedRecordings = 0;
 	private MediaRecorder recorder = null;
+	private SharedPreferences sharedPreferences;
+	private Drawable muteIcon;
+	private Drawable playIcon;
+	private AudioManager audioManager;
+	private int volumeLevel;
 
 	// List of widgets
 	private EditText nameEditText;
 	private EditText subjectEditText;
 	private Chronometer chronometer;
 	private ToggleButton recordButton;
-	private SharedPreferences sharedPreferences;
-	private Drawable muteIcon;
-	private Drawable playIcon;
-	private AudioManager audioManager;
-	private int volumeLevel;
-	
-	
-	/** In onCreate(), the application checks our shared preferences for an integer used to 
-	 * uniquely name our audio files. It also instantiates the application's widgets, 
-	 * variables, and an OnSwipeTouchListener for navigating to the RecordingsList activity. **/
+
+
+	/** In onCreate(), the application grabs the initial volume and sets the volume level. It then loads 
+	 * a couple preferences, and instantiates the application's widgets, variables, and an OnSwipeTouchListener 
+	 * for navigating to the RecordingsList activity. **/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -132,7 +133,7 @@ public class MainActivity extends Activity {
 			Log.d("DEFAULT NAME - TEMP", temp);
 		}
 
-		// Uses an on swipe listener
+		// OnSwipeListener
 		mainView.setOnTouchListener(new OnSwipeTouchListener() {
 			public void onSwipeLeft() {
 				recordingListIntent.putExtra(RECORDING, new AudioRecording(null, null, null, null, null, null));
@@ -140,8 +141,9 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
+	
 
-	/**onCreateOptions method finds the XML actionbar file in menu and inflates it. It then sets the action items
+	/** onCreateOptionsMenu() method finds the XML action bar file in menu and inflates it. It then sets the action items
 	 * on the action bar on top of the screen **/
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -158,6 +160,9 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
+	
+	/** onPrepareOptionsMenu() method is called every time invalidateOptionsMenu() is called. This method
+	 * checks the volume level and sets the icon in the action bar to mute/unmute accordingly.**/
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		Log.d("VOICE RECORDER", "onPrepareOptionsMenu");
@@ -170,7 +175,8 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	/**onOptionsItemSelected method distinguishes which icon was clicked and does the appropriate thing **/
+	
+	/** onOptionsItemSelected method distinguishes which options menu icon was clicked and executes the appropriate actions. **/
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Log.d("VOICE RECORDER", "onOptionsItemSelected()");
@@ -230,7 +236,8 @@ public class MainActivity extends Activity {
 		return true;
 	} 
 
-
+	
+	/** onActivityResult() is used if the Settings menu is clicked. Updates the default name from the value the user entered. **/
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {     
 		super.onActivityResult(requestCode, resultCode, data); 
 		if (resultCode == Activity.RESULT_OK) { 
@@ -243,6 +250,7 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	
 	/** Record/Pause button is a toggle button. This method first determines whether "record" or "stop" was clicked. 
 	 * Record: Initializes the MediaRecorder object, starts the chronometer, and starts recording audio.
 	 * Stop: Stops recording and saves it.  **/
@@ -323,10 +331,12 @@ public class MainActivity extends Activity {
 	public void pushRecordingToList(String audioFilePath) {
 		// Get current date
 		String date = formatDate();
+		
+		// Format the time
 		DecimalFormat df = new DecimalFormat("#.#");
 		String durationString = df.format(recordingDuration);
 		durationString += getString(R.string.s);
-		Log.d("DURATION", durationString);
+
 		// Create new AudioRecording object and add it to the ArrayList
 		AudioRecording recording = new AudioRecording(audioFilePath, nameEditText.getText().toString(), subjectEditText.getText().toString(), "", date, durationString);
 
@@ -377,7 +387,6 @@ public class MainActivity extends Activity {
 		in.close();
 		out.close();
 	}
-
 
 
 	/**--------------------------------------------- OVERRIDEN METHODS ----------------------------------------------**/

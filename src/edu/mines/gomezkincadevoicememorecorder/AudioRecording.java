@@ -70,8 +70,5 @@ public class AudioRecording implements Serializable {
 
 	public void setDuration(String duration) {
 		this.duration = duration;
-	}
-
-
-	
+	}	
 }
