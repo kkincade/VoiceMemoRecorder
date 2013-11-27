@@ -84,6 +84,7 @@ public class RecordingsListAdapter extends BaseAdapter {
 		ContentValues initialValues = new ContentValues();
 		SharedPreferences shared = context.getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
 		String defaultName = (shared.getString(MainActivity.DEFAULT_NAME, ""));
+		String defaultSubject = (shared.getString(MainActivity.DEFAULT_SUBJECT, ""));
 		if (recording.getName().equals("")) {
 			initialValues.put(KEY_NAME, defaultName);
 		} else {
@@ -92,7 +93,10 @@ public class RecordingsListAdapter extends BaseAdapter {
 		initialValues.put(KEY_DATE, recording.getDate());
 		initialValues.put(KEY_LENGTH, recording.getDuration());
 		initialValues.put(KEY_RECORDINGPATH, recording.getAudioFilePath());
-		initialValues.put(KEY_SUBJECT, recording.getSubject());
+		if(recording.getSubject().equals(""))
+			initialValues.put(KEY_SUBJECT, defaultSubject);
+		else
+			initialValues.put(KEY_SUBJECT, recording.getSubject());
 		
 		return database.insert(DATABASE_TABLE, null, initialValues);
 	}

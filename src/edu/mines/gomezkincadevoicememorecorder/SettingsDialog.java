@@ -11,10 +11,11 @@ import android.view.Window;
 import android.widget.EditText;
 
 public class SettingsDialog extends Activity {
-	private EditText defaultNameEditText;
+	private EditText defaultNameEditText, defaultSubjectEditText;
 	public final static String DEFAULTNAME = "defaultName";
+	public final static String DEFAULTSUBJECT = "defaultSubject";
 	private SharedPreferences sharedPreferences;
-	private String defaultName;
+	private String defaultName, defaultSubject;
 	
 	/** Grabs the default recording name from the shared preferences and loads the view **/
 	@Override
@@ -23,11 +24,14 @@ public class SettingsDialog extends Activity {
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_settings_dialog);
 		defaultNameEditText = (EditText) findViewById(R.id.setting_default_name);
+		defaultSubjectEditText = (EditText) findViewById(R.id.setting_default_subject);
 		
 		sharedPreferences = getSharedPreferences("voice_memo_preferences", Activity.MODE_PRIVATE);
 		defaultName = (sharedPreferences.getString(MainActivity.DEFAULT_NAME, ""));
+		defaultSubject = (sharedPreferences.getString(MainActivity.DEFAULT_SUBJECT, ""));
 		Log.d("DEFAULT NAME IN SETTINGS", defaultName);
 		defaultNameEditText.setText(defaultName);
+		defaultSubjectEditText.setText(defaultSubject);
 	}
 
 	
@@ -40,13 +44,18 @@ public class SettingsDialog extends Activity {
 	
 	/** Callback for confirm button. If default name is an empty string, it wipes the users changes. **/
 	public void onConfirm(View v) {
-		String temp = defaultNameEditText.getText().toString();
-		if (temp.equals("")) {
-			temp = defaultName;
+		String name = defaultNameEditText.getText().toString();
+		String subject = defaultSubjectEditText.getText().toString();
+		if (name.equals("")) {
+			name = defaultName;
+		}
+		if (subject.equals("")) {
+			subject = defaultSubject;
 		}
 		Intent data = new Intent();
 		setResult(RESULT_OK, data);
-		data.putExtra(DEFAULTNAME, temp);
+		data.putExtra(DEFAULTNAME, name);
+		data.putExtra(DEFAULTSUBJECT, subject);
 		finish();
 	}
 }

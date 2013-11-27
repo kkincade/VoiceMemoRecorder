@@ -53,7 +53,7 @@ import android.widget.ToggleButton;
  * The options menu presents three options:
  * 1.) About    - information regarding the developers
  * 2.) Help     - some tips on how to use the application
- * 3.) Settings - options to change default text color for list view as well as change the default recording name
+ * 3.) Settings - options to change default recording subject as well as change the default recording name
  * 
  * The action bar also contains a button for muting/unmuting the media volume on the device.
  * 
@@ -78,6 +78,7 @@ import android.widget.ToggleButton;
 public class MainActivity extends Activity {
 	public final static String RECORDING = "recording";
 	public final static String DEFAULT_NAME = "default_name";
+	public final static String DEFAULT_SUBJECT = "default_subject";
 	public final static int DEFAULT = 1;
 	
 	private String originalAudioFilePath = null;
@@ -89,6 +90,7 @@ public class MainActivity extends Activity {
 	private Drawable playIcon;
 	private AudioManager audioManager;
 	private int volumeLevel;
+	private boolean isrecording = false;
 
 	// List of widgets
 	private EditText nameEditText;
@@ -242,9 +244,11 @@ public class MainActivity extends Activity {
 		super.onActivityResult(requestCode, resultCode, data); 
 		if (resultCode == Activity.RESULT_OK) { 
 			if (requestCode == DEFAULT) {
-				String temp = data.getExtras().getString(SettingsDialog.DEFAULTNAME);
+				String name = data.getExtras().getString(SettingsDialog.DEFAULTNAME);
+				String subject = data.getExtras().getString(SettingsDialog.DEFAULTSUBJECT);
 				SharedPreferences.Editor editor = sharedPreferences.edit();
-				editor.putString(DEFAULT_NAME, temp);
+				editor.putString(DEFAULT_NAME, name);
+				editor.putString(DEFAULT_SUBJECT, subject);
 				editor.commit();
 			}
 		}
@@ -259,6 +263,7 @@ public class MainActivity extends Activity {
 			// Record
 			if (recordButton.isChecked()) {
 				Log.d("VOICE MEMO RECORDER", "Start Recording");
+				isrecording = true;
 				recorder = new MediaRecorder();
 				recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 				recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -292,7 +297,9 @@ public class MainActivity extends Activity {
 		// Stop chronometer
 		chronometer.stop();
 		recordingDuration = (SystemClock.elapsedRealtime() - chronometer.getBase())/1000.0;
-
+		
+		isrecording = false;
+		
 		Log.d("VOICE MEMO RECORDER", "Stop Recording");
 		// Stop recording
 		recorder.stop();
@@ -420,6 +427,13 @@ public class MainActivity extends Activity {
 	protected void onStop() {
 		super.onStop(); // Must do this or app will crash!
 		Log.d( "VOICE RECORDER", "onStop()..." );
+		
+		//check and see if recording is in progress and if so stop recorder and release it
+		if (isrecording) {
+			recorder.stop();
+			recorder.release();
+			recorder = null;
+		}
 	}
 
 	@Override

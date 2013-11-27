@@ -292,9 +292,11 @@ public class RecordingsList extends FragmentActivity implements RecordingListFra
 		super.onActivityResult(requestCode, resultCode, data); 
 		if (resultCode == Activity.RESULT_OK) { 
 			if (requestCode == MainActivity.DEFAULT) {
-				String temp = data.getExtras().getString(SettingsDialog.DEFAULTNAME);
+				String name = data.getExtras().getString(SettingsDialog.DEFAULTNAME);
+				String subject = data.getExtras().getString(SettingsDialog.DEFAULTSUBJECT);
 				SharedPreferences.Editor editor = sharedPreferences.edit();
-				editor.putString(MainActivity.DEFAULT_NAME, temp);
+				editor.putString(MainActivity.DEFAULT_NAME, name);
+				editor.putString(MainActivity.DEFAULT_SUBJECT, subject);
 				editor.commit();
 			}
 		}

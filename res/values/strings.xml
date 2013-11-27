@@ -32,6 +32,7 @@
     <string name="help_message_2">Click on a recording to edit the name and subject as well as add notes. Click the play the button to playback your recording.\nLong click a recording to delete it from your device.        
     </string>
     <string name="settings_messag">Enter name for default name:</string>
+    <string name="settings_messag2">Enter subject for default subject:</string>
     <string name="mute_message">Volume Muted</string>
     <string name="play_message">Volume Unmuted</string>
     <string name="s">s</string>
